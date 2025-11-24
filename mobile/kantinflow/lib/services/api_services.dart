@@ -5,9 +5,9 @@ import 'package:http/http.dart' as http;
 class ApiServices {
   // Add your API service methods here
 
-  static const String baseUrl = "https://localhost:7131/api";
+  // static const String baseUrl = "https://localhost:5235/api";
   // For Android Emulator
-  // static const String baseUrl = "https://10.0.2.2:7131/api";
+  static const String baseUrl = "https://10.0.2.2:7131/api";
 
   //REGISTER USER
   static Future<String?> register({

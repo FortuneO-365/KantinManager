@@ -19,9 +19,10 @@ namespace KantinManager.API.Services
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email)
             };
+
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -35,13 +36,15 @@ namespace KantinManager.API.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public int? ValidateToken(string token)
+        public string ValidateToken(string token)
         {
+
+
             if (string.IsNullOrEmpty(token))
-                return null;
+                return "No token";
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_jwtKey); // Your stored secret
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey)); // Your stored secret
 
             try
             {
@@ -50,7 +53,7 @@ namespace KantinManager.API.Services
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = key,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
@@ -58,16 +61,21 @@ namespace KantinManager.API.Services
                 var principal = tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
 
                 // Get the "sub" claim (standard JWT Subject claim)
-                var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == "sub");
+                var userIdClaim =
+                    principal.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub) ??
+                    principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
 
                 if (userIdClaim == null)
-                    return null;
+                {
+                    return "No Claim";
+                }
 
-                return int.Parse(userIdClaim.Value);
+                return int.Parse(userIdClaim.Value).ToString();
             }
             catch
             {
-                return null; // Token invalid, expired, or signature mismatch
+                return "Error"; // Token invalid, expired, or signature mismatch
             }
         }
 

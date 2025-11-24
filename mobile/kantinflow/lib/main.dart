@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:kantin_management/dashboard.dart';
 import 'package:kantin_management/pages/splash_screen.dart';
 import 'package:kantin_management/products.dart';
 import 'package:kantin_management/sales.dart';
+import 'package:kantin_management/services/http_override.dart';
+import 'package:kantin_management/settings.dart';
 
 void main() {
+  HttpOverrides.global = MyHttpOverrides(); 
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -22,56 +27,46 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late PageController _pageController;
   int _currentIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  void _onNavTapped(int index) {
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeInOut,
-    );
-  }
+  final List<Widget> _pages = [
+    Dashboard(),
+    Sales(),
+    Products(),
+    Settings(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: const [
-          Dashboard(),
-          Sales(),
-          Products(),
-        ],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 350),
+        transitionBuilder: (child, animation) {
+          final slideAnimation = Tween<Offset>(
+            begin: const Offset(1, 0),
+            end: Offset.zero,
+          ).animate(animation);
+
+          return SlideTransition(
+            position: slideAnimation,
+            child: child,
+          );
+        },
+        child: _pages[_currentIndex],
       ),
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: _onNavTapped,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         selectedItemColor: Colors.blue[300],
         selectedIconTheme: IconThemeData(
           size: 30,
           color: Colors.blue[300],
-
         ),
         selectedLabelStyle: TextStyle(
           fontWeight: FontWeight.bold,
@@ -85,11 +80,15 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),
-            label: "Search",
+            label: "Sales",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: "Profile",
+            label: "Products",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: "Settings",
           ),
         ],
       ),

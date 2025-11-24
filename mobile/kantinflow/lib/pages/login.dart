@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kantin_management/components/custom_alert_dialog.dart';
 import 'package:kantin_management/components/text_form_field.dart';
 import 'package:kantin_management/main.dart';
 import 'package:kantin_management/pages/forgot_password.dart';
@@ -8,9 +9,61 @@ class Login extends StatelessWidget {
   Login({super.key});
 
   final Color mainColor = Color.fromARGB(255, 144, 202, 249);
+  final Color errorColor = Color.fromARGB(255, 239, 154, 154);
+  final Color successColor =  Color.fromARGB(255, 165, 214, 167);
   final TextEditingController cEmail = TextEditingController();
   final TextEditingController cPassword = TextEditingController();
 
+  String ValidateUserDetails() {
+    String email = cEmail.text.trim();
+    String password = cPassword.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      return "Field(s) cannot be empty";
+    }
+
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      return "Invalid email format";
+    }
+
+    return "Success";
+  }
+
+  void showErrorPopUp(BuildContext context,String message){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CustomAlertDialog(
+          Icons.error_outline,
+          "Error",
+          message, 
+          errorColor, 
+          "OK",
+          () => action(context)
+        );
+      },
+    );
+  }
+
+  void action(BuildContext context){
+    () => Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  void showSuccessPopUp(context){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CustomAlertDialog(
+          Icons.check_circle_outline,
+          "Enter your email",
+          "Please check your email for instructions to securely reset your password.", 
+          mainColor, 
+          "OK",
+          () => action(context)
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

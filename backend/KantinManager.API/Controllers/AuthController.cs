@@ -2,9 +2,9 @@
 using KantinManager.API.DTOs;
 using KantinManager.API.Models;
 using KantinManager.API.Services;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -17,14 +17,12 @@ namespace KantinManager.API.Controllers
         private readonly AppDbContext _context;
         private readonly JwtService _jwtService;
         private readonly EmailService _emailService;
-        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(AppDbContext context, JwtService jwtService, EmailService emailService, ILogger<AuthController> logger)
+        public AuthController(AppDbContext context, JwtService jwtService, EmailService emailService)
         {
             _context = context;
             _jwtService = jwtService;
             _emailService = emailService; // Initialize EmailService
-            _logger = logger;
         }
 
         [HttpPost("register")]
@@ -156,39 +154,79 @@ namespace KantinManager.API.Controllers
             }
         }
 
-        //public async Task<IActionResult> StartForgotPassword(ResendVerificationCodeDto dto)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
-        //    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-        //    if (user == null)
-        //    {
-        //        return NotFound("User not found");
-        //    }
-        //    var link = GenerateCode().ToString();
-        //    var expiration = DateTime.UtcNow.AddHours(1);
-        //    try
-        //    {
-        //        await _emailService.SendVerificationEmail(user.Email, code);
-        //        user.VerificationCode = code;
-        //        user.VerificationCodeExpiresAt = expiration;
-        //        await _context.SaveChangesAsync();
-        //        return Ok("Password reset code sent. Check your email.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Email sending failed: {ex.Message}");
-        //    }
-        //}
-
-
-
-        [HttpGet("me")]
-        public async Task<IActionResult> GetUser()
+        [HttpPost("initiate-forgot-password")]
+        public async Task<IActionResult> StartForgotPassword(ResendVerificationCodeDto dto)
         {
-            var authorization = HttpContext.Request.Headers["Authorization"].ToString();
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            if (user == null)
+            {
+                return Ok("Password reset instructions sent if the email exists.");
+            }
+
+            // Generate a fresh reset code
+            var code = GenerateCode().ToString();
+            var expiration = DateTime.UtcNow.AddMinutes(10); // Better UX than 1 hour
+
+            try
+            {
+                // Send email
+                await _emailService.SendVerificationEmail(user.Email, code);
+
+                // Save to DB
+                user.VerificationCode = code;
+                user.VerificationCodeExpiresAt = expiration;
+
+                await _context.SaveChangesAsync();
+
+                // Always return same message for security
+                return Ok("Password reset instructions sent if the email exists.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Email sending failed: {ex.Message}");
+            }
+        }
+
+
+        [HttpPost("complete-forgot-password")]
+        public async Task<IActionResult> CompleteForgotPassword(ForgotPasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.VerificationCode == dto.Code);
+
+            if (user == null || user.VerificationCodeExpiresAt < DateTime.UtcNow) 
+            {
+                return BadRequest("Invalid or expired Code");
+            }
+
+            var password = HashPassword(dto.Password);
+            user.PasswordHash = password;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Password Changed Successfully");
+
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var authorization = HttpContext.Request.Headers.Authorization.ToString();
             if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
             {
                 return Unauthorized("Missing or invalid provided");
@@ -198,21 +236,26 @@ namespace KantinManager.API.Controllers
 
             try
             {
-                var userId = _jwtService.ValidateToken(token);
-                _logger.LogInformation($"UserId: {userId}");
+                string userId = _jwtService.ValidateToken(token);
 
-                var user = await _context.Users.FindAsync(userId);
-                if (user == null)
-                    return NotFound("User not found");
-
-                return Ok(new
+                if (userId == "No token" || userId == "No Claim" || userId == "Error")
                 {
-                    user.Id,
-                    user.FirstName,
-                    user.LastName,
-                    user.Email,
-                    user.EmailVerified
-                });
+                    return BadRequest(userId);
+                }
+
+                var user = await _context.Users.FindAsync(int.Parse(userId));
+                if (user == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                var password = HashPassword(dto.Password);
+                user.PasswordHash = password;
+
+                await _context.SaveChangesAsync();
+
+                return Ok("Password Reset Successfully");
+
             }
             catch (Exception ex)
             {

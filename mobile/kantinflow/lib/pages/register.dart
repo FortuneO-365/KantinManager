@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:kantin_management/components/custom_alert_dialog.dart';
 import 'package:kantin_management/components/text_form_field.dart';
 import 'package:kantin_management/pages/email_verification.dart';
 import 'package:kantin_management/pages/login.dart';
+import 'package:kantin_management/services/api_services.dart';
 
 class Register extends StatelessWidget{
   Register({super.key});
 
   final Color mainColor = Color.fromARGB(255, 144, 202, 249);
+  final Color errorColor = Color.fromARGB(255, 239, 154, 154);
+  final Color successColor =  Color.fromARGB(255, 165, 214, 167);
   final TextEditingController cFirstName  = TextEditingController();
   final TextEditingController cLastName  = TextEditingController();
   final TextEditingController cEmail  = TextEditingController();
   final TextEditingController cPassword  = TextEditingController();
   final TextEditingController cConfirmPassword  = TextEditingController();
 
-  String RegisterUser(){
+  String ValidateUserDetails(){
     // Implement registration logic here
     String firstName = cFirstName.text.trim();
     String lastName = cLastName.text.trim();
@@ -22,30 +26,80 @@ class Register extends StatelessWidget{
     String confirmPassword = cConfirmPassword.text.trim();
 
     if( firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty){
-      return "Bad Request";
+      return "Field(s) cannot be empty";
     }
 
     if( password.length < 8 ){
-      return "Bad Request";
+      return "Password must be at least 8 characters long";
     }
 
     if(password.length > 30 ){
-      return "Bad Request";
+      return "Password cannot exceed 30 characters";
     }
 
     if(password != confirmPassword){
-      // Show error message
-      print("Passwords do not match");
-      return "Bad Request";
+      return "Passwords do not match";
     }
 
     if(!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)){
-      // Show error message
-      print("Invalid email format");
-      return "Bad Request";
+      return "Invalid email format";
     }
 
     return "Success";
+  }
+
+  void showErrorPopUp(BuildContext context,String message){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CustomAlertDialog(
+          Icons.error_outline,
+          "Error",
+          message, 
+          errorColor, 
+          "OK",
+          () => action(context)
+        );
+      },
+    );
+  }
+
+  void action(BuildContext context){
+    () => Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  void showSuccessPopUp(context){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CustomAlertDialog(
+          Icons.check_circle_outline,
+          "Enter your email",
+          "Please check your email for instructions to securely reset your password.", 
+          mainColor, 
+          "OK",
+          () => action(context)
+        );
+      },
+    );
+  }
+
+  void registerUser(BuildContext context) async {
+
+    String result = ValidateUserDetails();
+
+    if(result == "Success"){
+      final response = await ApiServices.register(
+        firstName: cFirstName.text,
+        lastName: cLastName.text,
+        email: cEmail.text,
+        password: cPassword.text,
+      );
+
+      print(response);
+    }else{
+      showErrorPopUp(context, result);
+    }
 
   }
 
@@ -152,12 +206,7 @@ class Register extends StatelessWidget{
                               ElevatedButton(
                                 onPressed: () {
                                   // Handle login action
-                                  String result = RegisterUser();
-                                  if(result == "Bad Request"){
-                                    return;
-                                  }else{
-                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => EmailVerification()));
-                                  }
+                                  registerUser(context);
                                 },
                                 style: ElevatedButton.styleFrom(
                                   minimumSize: Size(double.infinity, 50),

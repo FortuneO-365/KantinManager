@@ -7,7 +7,7 @@ class Sales extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text(
-        "Profile",
+        "Sales",
         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
       ),
     );

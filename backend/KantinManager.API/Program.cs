@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddScoped<EmailService>();
 
+builder.Services.AddSingleton<CloudinaryService>();
 
 builder.Services.AddControllers();
 

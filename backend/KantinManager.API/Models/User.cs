@@ -10,5 +10,7 @@
         public bool EmailVerified { get; set; } = false;
         public string? VerificationCode { get; set; }
         public DateTime? VerificationCodeExpiresAt { get; set; }
+        public string? ProfileImageUrl { get; set; }
+
     }
 }
