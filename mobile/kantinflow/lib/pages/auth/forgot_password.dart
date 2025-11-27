@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/custom_alert_dialog.dart';
 import 'package:kantin_management/components/text_form_field.dart';
 
 class ForgotPassword extends StatelessWidget{
@@ -12,20 +11,55 @@ class ForgotPassword extends StatelessWidget{
     showDialog(
       context: context,
       builder: (context) {
-        return CustomAlertDialog(
-          Icons.mail_outline,
-          "Enter your email",
-          "Please check your email for instructions to securely reset your password.", 
-          mainColor, 
-          "CHECK EMAIL",
-          () => action(context)
+        return AlertDialog(
+          title: 
+          Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white
+            ),
+            child: Icon(
+              Icons.mail_outline,
+              size: 30.0,
+            ),
+          ),
+          content: SizedBox(
+            height: 90.0,
+            child: Column(
+              children: [
+                Text(
+                  "Enter your email",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
+                  ),
+                ),
+                Text(
+                  "Please check your email for instructions to securely reset your password.",
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                // your action
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ResetForgottenPassword()));
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: mainColor,
+                foregroundColor: Colors.white,
+                minimumSize: Size(double.infinity, 50),
+              ),
+              child: Text("CHECK EMAIL"),
+            ),
+          ],
         );
       },
     );
-  }
-
-  void action(BuildContext context){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ResetForgottenPassword()));
   }
 
   @override
@@ -79,12 +113,9 @@ class ForgotPassword extends StatelessWidget{
                   ),
                   SizedBox(height: 8.0),
                   CustomTextFormField(
-                    Icons.mail_outline,
-                    null,
-                    'Enter your email',
-                    false,
-                    cEmail,
-                    decoration: const InputDecoration(),
+                    prefixIcon: Icons.mail_outline,
+                    labelText: 'Email',
+                    controller: cEmail,
                   ),
                   SizedBox(height: 24.0),
                   ElevatedButton(
@@ -167,12 +198,9 @@ class ResetForgottenPassword extends StatelessWidget{
                   ),
                   SizedBox(height: 8.0),
                   CustomTextFormField(
-                    Icons.lock_outline,
-                    null,
-                    'Enter your new password',
-                    true,
-                    cNewPassword,
-                    decoration: const InputDecoration(),
+                    prefixIcon: Icons.lock_outline,
+                    labelText: 'New Password',
+                    controller: cNewPassword,
                   ),
                   SizedBox(height: 16.0),
                   Row(
@@ -188,12 +216,9 @@ class ResetForgottenPassword extends StatelessWidget{
                   ),
                   SizedBox(height: 8.0),
                   CustomTextFormField(
-                    Icons.lock_outline,
-                    null,
-                    'Confirm your new password',
-                    true,
-                    cConfirmNewPassword,
-                    decoration: const InputDecoration(),
+                    prefixIcon: Icons.lock_outline,
+                    labelText: 'Confirm new Password',
+                    controller: cConfirmNewPassword,
                   ),
                   SizedBox(height: 24.0),
                   ElevatedButton(

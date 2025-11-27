@@ -1,7 +1,9 @@
 ﻿using KantinManager.API.Data;
 using KantinManager.API.Services;
-using KantinManager.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
+using System.Security.Cryptography;
+using KantinManager.API.DTOs.UserDtos;
 
 namespace KantinManager.API.Controllers
 {
@@ -91,9 +93,6 @@ namespace KantinManager.API.Controllers
                 if (!string.IsNullOrWhiteSpace(dto.LastName))
                     user.LastName = dto.LastName;
 
-                if (!string.IsNullOrWhiteSpace(dto.Email))
-                    user.Email = dto.Email;
-
                 await _context.SaveChangesAsync();
 
                 return Ok(new
@@ -160,7 +159,60 @@ namespace KantinManager.API.Controllers
             }
         }
 
+        [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword (ChangePasswordDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var authorization = HttpContext.Request.Headers.Authorization.ToString();
+            if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+            {
+                return Unauthorized("Missing or invalid provided");
+            }
+
+            var token = authorization.Substring("Bearer ".Length).Trim();
+
+            try
+            {
+                string userId = _jwtService.ValidateToken(token);
+
+                if (userId == "No token" || userId == "No Claim" || userId == "Error")
+                {
+                    return BadRequest(userId);
+                }
+
+                var user = await _context.Users.FindAsync(int.Parse(userId));
+                if (user == null)
+                    return NotFound("User not found");
+
+                if (HashPassword(dto.OldPassword) != user.PasswordHash)
+                {
+                    return BadRequest("Old Password is incorrect");
+                }
+
+                if (dto.OldPassword == dto.NewPassword)
+                {
+                    return BadRequest("Old Password must not be the same as New password");
+                }
+
+                user.PasswordHash = HashPassword(dto.NewPassword);
+
+                await _context.SaveChangesAsync();
+
+
+                return Ok("Password Changed Successfully");
+            }
+            catch (Exception ex) 
+            {
+                return Unauthorized("Token validation failed: " + ex.Message);
+            }
+        }
+
+        [HttpDelete("me")]
+        public async Task<IActionResult> DeleteAccount()
         {
             var authorization = HttpContext.Request.Headers.Authorization.ToString();
             if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
@@ -178,11 +230,29 @@ namespace KantinManager.API.Controllers
                 {
                     return BadRequest(userId);
                 }
+
+                var user = await _context.Users.FindAsync(int.Parse(userId));
+                if (user == null)
+                    return NotFound("User not found");
+
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+
+                return Ok("Account deleted successfully");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return Unauthorized("Token validation failed: " + ex.Message);
             }
+        }
+
+        private string HashPassword(string password)
+        {
+            // Simple hash for demonstration purposes. Use a stronger hashing algorithm in production.
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(password);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
         }
     }
 }

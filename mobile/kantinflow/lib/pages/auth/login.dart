@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/custom_alert_dialog.dart';
 import 'package:kantin_management/components/text_form_field.dart';
 import 'package:kantin_management/main.dart';
-import 'package:kantin_management/pages/forgot_password.dart';
-import 'package:kantin_management/pages/register.dart';
+import 'package:kantin_management/pages/auth/forgot_password.dart';
+import 'package:kantin_management/pages/auth/register.dart';
 
 class Login extends StatelessWidget {
   Login({super.key});
@@ -29,41 +28,24 @@ class Login extends StatelessWidget {
     return "Success";
   }
 
-  void showErrorPopUp(BuildContext context,String message){
+  void showLoading(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) {
-        return CustomAlertDialog(
-          Icons.error_outline,
-          "Error",
-          message, 
-          errorColor, 
-          "OK",
-          () => action(context)
-        );
-      },
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: CircularProgressIndicator(
+          color: mainColor,
+          backgroundColor: const Color.fromARGB(50, 255, 255, 255),
+        ),
+      ),
     );
   }
 
-  void action(BuildContext context){
-    () => Navigator.of(context, rootNavigator: true).pop();
+  void hideLoading(BuildContext context) {
+    Navigator.pop(context);
   }
 
-  void showSuccessPopUp(context){
-    showDialog(
-      context: context,
-      builder: (context) {
-        return CustomAlertDialog(
-          Icons.check_circle_outline,
-          "Enter your email",
-          "Please check your email for instructions to securely reset your password.", 
-          mainColor, 
-          "OK",
-          () => action(context)
-        );
-      },
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,21 +102,17 @@ class Login extends StatelessWidget {
                         child: Column(
                           children: [
                             CustomTextFormField(
-                              Icons.person_outline,
-                              null,
-                              'Email',
-                              false,
-                              cEmail,
-                              decoration: InputDecoration(),
+                              prefixIcon: Icons.mail_outline,
+                              labelText: 'Email',
+                              controller: cEmail,
+                              isPassword: false,
                             ),
                             SizedBox(height: 16.0),
                             CustomTextFormField(
-                              Icons.lock_outline,
-                              Icons.remove_red_eye_outlined,
-                              'Password',
-                              true,
-                              cPassword,
-                              decoration: InputDecoration(),
+                              prefixIcon: Icons.lock_outline,
+                              labelText: 'Password',
+                              controller: cPassword,
+                              isPassword: true,
                             ),
                             SizedBox(height: 10.0,),
                             Row(
@@ -156,9 +134,23 @@ class Login extends StatelessWidget {
                             ),
                             SizedBox(height: 24.0),
                             ElevatedButton(
-                              onPressed: () {
-                                // Handle login action
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+                              onPressed: () async {
+                                showLoading(context); // show loader
+
+                                try {
+                                  // Simulate login API call
+                                  await Future.delayed(Duration(seconds: 3));
+
+                                  hideLoading(context); // remove loader
+
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => HomePage()),
+                                  );
+                                } catch (e) {
+                                  hideLoading(context);
+                                  // show error
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 minimumSize: Size(double.infinity, 50),

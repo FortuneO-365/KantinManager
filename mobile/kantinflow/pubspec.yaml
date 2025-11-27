@@ -33,6 +33,9 @@ dependencies:
   lottie: ^3.1.0
   pinput: ^3.0.1
   http: ^1.2.0
+  dio: ^5.5.0
+  flutter_secure_storage: ^9.0.0
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

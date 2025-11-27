@@ -1,84 +1,94 @@
-import 'dart:convert';
-
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:kantin_management/services/api_client.dart';
+import 'package:kantin_management/services/token_storage.dart';
 
 class ApiServices {
-  // Add your API service methods here
 
-  // static const String baseUrl = "https://localhost:5235/api";
-  // For Android Emulator
-  static const String baseUrl = "https://10.0.2.2:7131/api";
-
-  //REGISTER USER
-  static Future<String?> register({
+  // Future methods for API calls will be added here in the future.
+  Future<Response> registerUser({
     required String firstName,
     required String lastName,
     required String email,
     required String password,
-  }) async {
-    final url = Uri.parse('$baseUrl/Auth/register');
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "FirstName": firstName,
-        "LastName": lastName,
-        "Email": email,
-        "Password": password,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return response.body; // success message
-    } else {
-      return "Error: ${response.body}";
-    }
-  }
-
-  //VERIFY CODE
-  static Future<String?> verifyCode({
-    required String email,
-    required String code,
-  }) async {
-    final url = Uri.parse('$baseUrl/Auth/verify-email');
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
+  }) {
+    return ApiClient.dio.post(
+      "/auth/register",
+      data: {
+        "firstName": firstName,
+        "lastName": lastName,
         "email": email,
-        "code": code,
-      }),
+        "password": password
+      },
     );
-
-    if (response.statusCode == 200) {
-      return response.body; // success message
-    } else {
-      return "Error: ${response.body}";
-    }
   }
 
-  //Login
-  static Future<String?> login({
+  Future<Response> verifyUser({
     required String email,
-    required String password,
-  }) async {
-    final url = Uri.parse('$baseUrl/Auth/login');
+    required String verificationCode,
+  }) {
+    return ApiClient.dio.post(
+      "/auth/verify-email",
+      data: {
+        "email": email,
+        "code": verificationCode,
+      },
+    );
+  }
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        "Email": email,
-        "Password": password,
-      }),
+  Future<bool> login(String email, String password) async {
+    final response = await ApiClient.dio.post(
+      "/auth/login",
+      data: {"email": email, "password": password},
     );
 
-    if (response.statusCode == 200) {
-      return response.body; // token or success message
-    } else {
-      return "Error: ${response.body}";
-    }
+    final accessToken = response.data["accessToken"];
+    final refreshToken = response.data["refreshToken"];
+
+    await TokenStorage.saveTokens(accessToken, refreshToken);
+    return true;
   }
+
+  Future<Response> getUser() {
+    return ApiClient.dio.get("/user/me");
+  }
+
+  Future<Response> updateUser({String? firstName, String? lastName, String? email}) {
+    return ApiClient.dio.patch(
+      "/user/me",
+      data: {
+        "firstName": firstName,
+        "lastName": lastName,
+        "email": email,
+      },
+    );
+  }
+
+  Future<String> uploadProfileImage(String filePath) async {
+    FormData formData = FormData.fromMap({
+      "file": await MultipartFile.fromFile(filePath),
+    });
+
+    final res = await ApiClient.dio.post("/user/upload-profile-image", data: formData);
+    return res.data["imageUrl"];
+  }
+
+  Future<Response> changePassword(String oldPassword, String newPassword) {
+    return ApiClient.dio.post(
+      "/user/change-password",
+      data: {
+        "oldPassword": oldPassword,
+        "newPassword": newPassword,
+      },
+    );
+  }
+
+  Future<void> logout() async {
+    await ApiClient.dio.post("/auth/logout");
+    await TokenStorage.clearTokens();
+  }
+
+  Future<Response> deleteAccount() {
+    return ApiClient.dio.delete("/user/me");
+  }
+
 }

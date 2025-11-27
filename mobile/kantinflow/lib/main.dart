@@ -1,15 +1,13 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:kantin_management/dashboard.dart';
+import 'package:kantin_management/pages/dashboard.dart';
 import 'package:kantin_management/pages/splash_screen.dart';
-import 'package:kantin_management/products.dart';
-import 'package:kantin_management/sales.dart';
-import 'package:kantin_management/services/http_override.dart';
-import 'package:kantin_management/settings.dart';
+import 'package:kantin_management/pages/product/products.dart';
+import 'package:kantin_management/pages/sales/sales.dart';
+import 'package:kantin_management/services/api_client.dart';
+import 'package:kantin_management/pages/settings/me.dart';
 
 void main() {
-  HttpOverrides.global = MyHttpOverrides(); 
+  ApiClient.setupInterceptors();
   runApp(
     const MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -63,6 +61,7 @@ class _HomePageState extends State<HomePage> {
             _currentIndex = index;
           });
         },
+        backgroundColor: Color.fromARGB(0, 0, 0, 0),
         selectedItemColor: Colors.blue[300],
         selectedIconTheme: IconThemeData(
           size: 30,
@@ -83,12 +82,12 @@ class _HomePageState extends State<HomePage> {
             label: "Sales",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
+            icon: Icon(Icons.shopping_bag_rounded),
             label: "Products",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "Settings",
+            icon: Icon(Icons.person),
+            label: "Me",
           ),
         ],
       ),

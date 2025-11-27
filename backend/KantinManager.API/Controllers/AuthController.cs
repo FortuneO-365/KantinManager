@@ -1,5 +1,5 @@
 ﻿using KantinManager.API.Data;
-using KantinManager.API.DTOs;
+using KantinManager.API.DTOs.UserDtos;
 using KantinManager.API.Models;
 using KantinManager.API.Services;
 using Microsoft.AspNetCore.Identity.Data;
@@ -117,9 +117,21 @@ namespace KantinManager.API.Controllers
                 return Unauthorized("Invalid credentials.");
             }
 
-            var token = _jwtService.GenerateToken(user);
+            if (!user.EmailVerified)
+            {
+                return Unauthorized("Verify your email");
+            }
 
-            return Ok(new { token });
+            var token = _jwtService.GenerateToken(user);
+            var refreshToken = _jwtService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(7);
+
+            return Ok(new { 
+                accesstoken = token,
+                refreshToken = refreshToken,
+            });
         }
 
         [HttpPost("resend-verification")]
@@ -176,7 +188,7 @@ namespace KantinManager.API.Controllers
             try
             {
                 // Send email
-                await _emailService.SendVerificationEmail(user.Email, code);
+                await _emailService.SendResetPasswordEmail(user.Email, code);
 
                 // Save to DB
                 user.VerificationCode = code;
@@ -192,7 +204,6 @@ namespace KantinManager.API.Controllers
                 return StatusCode(500, $"Email sending failed: {ex.Message}");
             }
         }
-
 
         [HttpPost("complete-forgot-password")]
         public async Task<IActionResult> CompleteForgotPassword(ForgotPasswordDto dto)
@@ -218,14 +229,37 @@ namespace KantinManager.API.Controllers
 
         }
 
-        [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshToken( RefreshTokenDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == dto.RefreshToken);
+
+            if (user == null || user.RefreshTokenExpiresAt < DateTime.UtcNow)
+                return Unauthorized("Invalid or expired refresh token");
+
+            var newAccessToken = _jwtService.GenerateToken(user);
+            var newRefreshToken = _jwtService.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(7);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken
+            });
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
             var authorization = HttpContext.Request.Headers.Authorization.ToString();
             if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
             {
@@ -245,24 +279,20 @@ namespace KantinManager.API.Controllers
 
                 var user = await _context.Users.FindAsync(int.Parse(userId));
                 if (user == null)
-                {
                     return NotFound("User not found");
-                }
 
-                var password = HashPassword(dto.Password);
-                user.PasswordHash = password;
+                user.RefreshToken = null;
+                user.RefreshTokenExpiresAt = null;
 
                 await _context.SaveChangesAsync();
 
-                return Ok("Password Reset Successfully");
-
+                return Ok("Logged out successfully");
             }
             catch (Exception ex)
             {
                 return Unauthorized("Token validation failed: " + ex.Message);
             }
         }
-
 
         private string HashPassword(string password)
         {

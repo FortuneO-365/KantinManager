@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/pages/login.dart';
+import 'package:kantin_management/pages/auth/login.dart';
 import 'package:pinput/pinput.dart';
 
 class EmailVerification extends StatelessWidget {

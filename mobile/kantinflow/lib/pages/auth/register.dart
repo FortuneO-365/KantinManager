@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/custom_alert_dialog.dart';
 import 'package:kantin_management/components/text_form_field.dart';
-import 'package:kantin_management/pages/email_verification.dart';
-import 'package:kantin_management/pages/login.dart';
+import 'package:kantin_management/pages/auth/email_verification.dart';
+import 'package:kantin_management/pages/auth/login.dart';
 import 'package:kantin_management/services/api_services.dart';
 
 class Register extends StatelessWidget{
@@ -48,48 +47,12 @@ class Register extends StatelessWidget{
     return "Success";
   }
 
-  void showErrorPopUp(BuildContext context,String message){
-    showDialog(
-      context: context,
-      builder: (context) {
-        return CustomAlertDialog(
-          Icons.error_outline,
-          "Error",
-          message, 
-          errorColor, 
-          "OK",
-          () => action(context)
-        );
-      },
-    );
-  }
-
-  void action(BuildContext context){
-    () => Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  void showSuccessPopUp(context){
-    showDialog(
-      context: context,
-      builder: (context) {
-        return CustomAlertDialog(
-          Icons.check_circle_outline,
-          "Enter your email",
-          "Please check your email for instructions to securely reset your password.", 
-          mainColor, 
-          "OK",
-          () => action(context)
-        );
-      },
-    );
-  }
-
   void registerUser(BuildContext context) async {
 
     String result = ValidateUserDetails();
 
     if(result == "Success"){
-      final response = await ApiServices.register(
+      final response = await ApiServices().registerUser(
         firstName: cFirstName.text,
         lastName: cLastName.text,
         email: cEmail.text,
@@ -98,7 +61,7 @@ class Register extends StatelessWidget{
 
       print(response);
     }else{
-      showErrorPopUp(context, result);
+      print(result);
     }
 
   }
@@ -159,48 +122,30 @@ class Register extends StatelessWidget{
                           child: Column(
                             children: [
                               CustomTextFormField(
-                                null,
-                                null,
-                                'FirstName',
-                                false,
-                                cFirstName,
-                                decoration: InputDecoration(),
+                                labelText: 'Firstname',
+                                controller: cFirstName,
                               ),
                               SizedBox(height: 16.0),
                               CustomTextFormField(
-                                null,
-                                null,
-                                'LastName',
-                                false,
-                                cLastName,
-                                decoration: InputDecoration(),
+                                labelText: 'Lastname',
+                                controller: cLastName,
                               ),
                               SizedBox(height: 16.0),
                               CustomTextFormField(
-                                null,
-                                null,
-                                'Email',
-                                false,
-                                cEmail,
-                                decoration: InputDecoration(),
+                                labelText: 'Email',
+                                controller: cEmail,
                               ),
                               SizedBox(height: 16.0),
                               CustomTextFormField(
-                                null,
-                                Icons.remove_red_eye_outlined,
-                                'Password',
-                                true,
-                                cPassword,
-                                decoration: InputDecoration(),
+                                labelText: 'Password',
+                                controller: cPassword,
+                                isPassword: true,
                               ),
                               SizedBox(height: 16.0),
                               CustomTextFormField(
-                                null,
-                                Icons.remove_red_eye_outlined,
-                                'Confirm Password',
-                                true,
-                                cConfirmPassword,
-                                decoration: InputDecoration(),
+                                labelText: 'Confirm Password',
+                                controller: cConfirmPassword,
+                                isPassword: true,
                               ),
                               SizedBox(height: 24.0),
                               ElevatedButton(

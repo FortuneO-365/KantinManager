@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/pages/login.dart';
+import 'package:kantin_management/pages/auth/login.dart';
 import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {

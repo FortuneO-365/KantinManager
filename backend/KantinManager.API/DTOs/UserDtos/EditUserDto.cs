@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace KantinManager.API.DTOs
+namespace KantinManager.API.DTOs.UserDtos
 {
     public class EditUserDto
     {
@@ -8,6 +8,5 @@ namespace KantinManager.API.DTOs
 
         public string LastName { get; set; } = string.Empty;
 
-        public string Email { get; set; } = string.Empty;
     }
 }

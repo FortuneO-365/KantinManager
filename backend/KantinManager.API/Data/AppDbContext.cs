@@ -9,5 +9,7 @@ namespace KantinManager.API.Data
         {
         }
         public DbSet<User> Users => Set<User>();
+        public DbSet<Product> Products { get; set; }
+
     }
 }

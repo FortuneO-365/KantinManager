@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/components/product.dart';
+import 'package:kantin_management/pages/product/add_product.dart';
 
 class Products extends StatelessWidget {
   Products({super.key});
@@ -13,24 +14,14 @@ class Products extends StatelessWidget {
         children: [ 
           Positioned.fill(
             child: Container(
-              color: const Color.fromARGB(255, 250, 250, 250),
+              color: Color.fromARGB(255, 245, 245, 245),
             ),
           ),
           Container(
             padding: EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Center(
-                  child: Text(
-                    "Inventory",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 28, 
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 24.0),
+                SizedBox(height: 16.0),
                 Row(
                   children: [
                     Expanded(
@@ -85,7 +76,7 @@ class Products extends StatelessWidget {
                         "View All",
                         style: TextStyle(
                           fontSize: 16,
-                          color: Colors.blue,
+                          color: mainColor,
                         ),
                       )
                     )
@@ -98,52 +89,52 @@ class Products extends StatelessWidget {
                       Product(
                         "Coca-Cola",
                         "30",
+                        "1.99"
+                      ),
+                      Product(
+                        "Fanta",
+                        "15",
                         "5.00"
                       ),
                       Product(
-                        "Coca-Cola",
-                        "30",
-                        "5.00"
+                        "Egg",
+                        "5",
+                        "10.00"
                       ),
                       Product(
-                        "Coca-Cola",
+                        "Mint-tea",
                         "30",
-                        "5.00"
+                        "10.00"
                       ),
                       Product(
-                        "Coca-Cola",
-                        "30",
-                        "5.00"
+                        "Rice",
+                        "20",
+                        "15.00"
                       ),
                       Product(
-                        "Coca-Cola",
-                        "30",
-                        "5.00"
+                        "Spirit",
+                        "35",
+                        "2.00"
                       ),
                       Product(
-                        "Coca-Cola",
+                        "Pepsi",
                         "30",
-                        "5.00"
+                        "15.00"
                       ),
                       Product(
-                        "Coca-Cola",
+                        "Bread",
                         "30",
-                        "5.00"
+                        "5.99"
                       ),
                       Product(
-                        "Coca-Cola",
+                        "Gum",
                         "30",
-                        "5.00"
+                        "0.89"
                       ),
                       Product(
-                        "Coca-Cola",
+                        "Coconut",
                         "30",
-                        "5.00"
-                      ),
-                      Product(
-                        "Coca-Cola",
-                        "30",
-                        "5.00"
+                        "5.20"
                       ),
                     ],
                   ),
@@ -157,7 +148,10 @@ class Products extends StatelessWidget {
             right: 26.0,
             child: IconButton.filled(
               onPressed: () {
-
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddProduct()),
+                );
               },
               style: TextButton.styleFrom(
                 backgroundColor: mainColor

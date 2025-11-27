@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace KantinManager.API.DTOs
+namespace KantinManager.API.DTOs.UserDtos
 {
     public class RegisterDto
     {
