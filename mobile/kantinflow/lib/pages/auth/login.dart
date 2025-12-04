@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/components/text_form_field.dart';
 import 'package:kantin_management/main.dart';
+import 'package:kantin_management/models/user.dart';
 import 'package:kantin_management/pages/auth/forgot_password.dart';
 import 'package:kantin_management/pages/auth/register.dart';
+import 'package:kantin_management/services/api_services.dart';
 
 class Login extends StatelessWidget {
   Login({super.key});
@@ -13,7 +15,7 @@ class Login extends StatelessWidget {
   final TextEditingController cEmail = TextEditingController();
   final TextEditingController cPassword = TextEditingController();
 
-  String ValidateUserDetails() {
+  String validateUserDetails() {
     String email = cEmail.text.trim();
     String password = cPassword.text.trim();
 
@@ -45,7 +47,22 @@ class Login extends StatelessWidget {
     Navigator.pop(context);
   }
 
-
+  void login(BuildContext context) async{
+    final String validationResult = validateUserDetails();
+    if(validationResult != "Success"){
+      return ;
+    }
+    final data = await ApiServices().login(cEmail.text.trim(), cPassword.text.trim());
+    if(data){
+      showLoading(context);
+      User user = await ApiServices().getUser();
+      hideLoading(context);
+      Navigator.pushReplacement(
+        context, 
+        MaterialPageRoute(builder: (_) => HomePage(user: user))
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,22 +152,7 @@ class Login extends StatelessWidget {
                             SizedBox(height: 24.0),
                             ElevatedButton(
                               onPressed: () async {
-                                showLoading(context); // show loader
-
-                                try {
-                                  // Simulate login API call
-                                  await Future.delayed(Duration(seconds: 3));
-
-                                  hideLoading(context); // remove loader
-
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => HomePage()),
-                                  );
-                                } catch (e) {
-                                  hideLoading(context);
-                                  // show error
-                                }
+                                login(context);
                               },
                               style: ElevatedButton.styleFrom(
                                 minimumSize: Size(double.infinity, 50),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kantin_management/models/user.dart';
 import 'package:kantin_management/pages/dashboard.dart';
 import 'package:kantin_management/pages/splash_screen.dart';
 import 'package:kantin_management/pages/product/products.dart';
@@ -18,7 +19,12 @@ void main() {
 
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+
+  final User user;
+  const HomePage({
+    super.key,
+    required this.user
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -26,17 +32,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+  }
 
-
-  final List<Widget> _pages = [
-    Dashboard(),
-    Sales(),
-    Products(),
-    Settings(),
-  ];
+  
 
   @override
   Widget build(BuildContext context) {
+
+    final List<Widget> _pages = [
+      Dashboard(
+        name: widget.user.firstName
+      ),
+      Sales(),
+      Products(),
+      Settings(
+        firstName: widget.user.firstName,
+        lastName: widget.user.lastName,
+        email: widget.user.email,
+      ),
+    ];
+
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
@@ -62,9 +80,9 @@ class _HomePageState extends State<HomePage> {
           });
         },
         backgroundColor: Color.fromARGB(0, 0, 0, 0),
+        showUnselectedLabels: true,
         selectedItemColor: Colors.blue[300],
         selectedIconTheme: IconThemeData(
-          size: 30,
           color: Colors.blue[300],
         ),
         selectedLabelStyle: TextStyle(
@@ -74,11 +92,11 @@ class _HomePageState extends State<HomePage> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.dashboard),
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.sell),
             label: "Sales",
           ),
           BottomNavigationBarItem(

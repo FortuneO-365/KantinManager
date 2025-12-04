@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:kantin_management/components/image_picker_field.dart';
 import 'package:kantin_management/components/product_text_field.dart';
 
 class AddProduct extends StatelessWidget{
@@ -70,75 +72,91 @@ class AddProduct extends StatelessWidget{
             Divider(),
             SizedBox(height: 16.0),
 
-            Column(
-              children: [
-                ProductTextField(
-                  title: "Product Name", 
-                  hint: "e.g Wireless Mouse", 
-                  keyboardType: TextInputType.text,
-                  controller: cName
-                ),
-                SizedBox(height: 16.0),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Currency",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16.0
+            Expanded(
+              child: ListView(
+                children: [
+                  Column(
+                    children: [
+                      ProductTextField(
+                        title: "Product Name", 
+                        hint: "e.g Wireless Mouse", 
+                        keyboardType: TextInputType.text,
+                        controller: cName
                       ),
-                    ),
-                    SizedBox(height: 8.0),
-                    DropdownButtonFormField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300
+                      SizedBox(height: 16.0),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Currency",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16.0
+                            ),
+                          ),
+                          SizedBox(height: 8.0),
+                          DropdownButtonFormField(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300
+                                )
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300
+                                )
+                              ),
+                            ),
+                            items: ["Nigerian Naira (NGN)", "US Dollar (USD)", "Euro (EUR)", "British Pound (GBP)"]
+                                .map((item) => DropdownMenuItem(
+                                      value: item,
+                                      child: Text(item),
+                                    )) 
+                                .toList(),
+                            onChanged: (item) {}
+                            
+                          )
+                        ]
+                      ),
+                      SizedBox(height: 16.0),
+                      ProductTextField(
+                        title: "Price", 
+                        hint: "0.00", 
+                        keyboardType: TextInputType.number,
+                        controller: cName
+                      ),
+                      SizedBox(height: 16.0),
+                      ProductTextField(
+                        title: "Quantity", 
+                        hint: "0", 
+                        keyboardType: TextInputType.number,
+                        controller: cName
+                      ),
+                      SizedBox(height: 16.0),
+                      ImagePickerField(
+                        selectedImage: null,
+                        onImageSelected: (XFile? image){},
+                      ),
+                      SizedBox(height: 30.0),
+                      ElevatedButton(
+                        onPressed: (){}, 
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: Size(double.infinity, 50),
+                          backgroundColor: Colors.blue.shade300,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(4.0)
                           )
                         ),
-                      ),
-                      items: ["Nigerian Naira (NGN)", "US Dollar (USD)", "Euro (EUR)", "British Pound (GBP)"]
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(item),
-                              )) 
-                          .toList(),
-                      onChanged: (item) {}
-                      
-                    )
-                  ]
-                ),
-                SizedBox(height: 16.0),
-                ProductTextField(
-                  title: "Price", 
-                  hint: "0.00", 
-                  keyboardType: TextInputType.number,
-                  controller: cName
-                ),
-                SizedBox(height: 16.0),
-                ProductTextField(
-                  title: "Quantity", 
-                  hint: "0", 
-                  keyboardType: TextInputType.number,
-                  controller: cName
-                ),
-                SizedBox(height: 30.0),
-                ElevatedButton(
-                  onPressed: (){}, 
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(double.infinity, 50),
-                    backgroundColor: Colors.blue.shade300,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusGeometry.circular(4.0)
-                    )
+                        child: Text("ADD TO INVENTORY",)
+                      )
+                    ],
                   ),
-                  child: Text("ADD TO INVENTORY",)
-                )
-              ],
+                ],
+              ),
             )
           ],
         )

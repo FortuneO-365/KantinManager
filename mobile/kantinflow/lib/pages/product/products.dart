@@ -20,7 +20,124 @@ class Products extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Container(
+
+                  child: Text(
+                    "All Products",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10.0,),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(
+                            width: 1.0,
+                            color: Colors.grey.shade300
+                          ),
+                          color: Colors.white
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Products",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14.0
+                              ),
+                            ),
+                            SizedBox(height: 10.0,),
+                            Text(
+                              "10",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16.0
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.0),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(
+                            width: 1.0,
+                            color: Colors.grey.shade300
+                          ),
+                          color: Colors.white
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Value",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14.0
+                              ),
+                            ),
+                            SizedBox(height: 10.0,),
+                            Text(
+                              "\$257.38",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16.0
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.0),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(
+                            width: 1.0,
+                            color: Colors.grey.shade300
+                          ),
+                          color: Colors.white
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Low Stock",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14.0
+                              ),
+                            ),
+                            SizedBox(height: 10.0,),
+                            Text(
+                              "3",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16.0
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: 16.0),
                 Row(
                   children: [
@@ -32,6 +149,7 @@ class Products extends StatelessWidget {
                             prefixIcon: Icon(Icons.search),
                             filled: true,
                             fillColor: Colors.white,
+                            hoverColor: Colors.white,
                             border: OutlineInputBorder(
                               borderSide: BorderSide.none,
                               borderRadius: BorderRadius.circular(8.0)
@@ -47,6 +165,7 @@ class Products extends StatelessWidget {
           
                       },
                       style: IconButton.styleFrom(
+                        hoverColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
@@ -60,81 +179,68 @@ class Products extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Items",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {}, 
-                      child: Text(
-                        "View All",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: mainColor,
-                        ),
-                      )
-                    )
-                  ],
-                ),
-                SizedBox(height: 10.0),
                 Expanded(
                   child: ListView(
                     children: [
                       Product(
                         "Coca-Cola",
                         "30",
-                        "1.99"
+                        "1.99",
+                        false
                       ),
                       Product(
                         "Fanta",
                         "15",
-                        "5.00"
+                        "5.00",
+                        false
                       ),
                       Product(
                         "Egg",
                         "5",
-                        "10.00"
+                        "10.00",
+                        true
                       ),
                       Product(
                         "Mint-tea",
-                        "30",
-                        "10.00"
+                        "3",
+                        "10.00",
+                        true
                       ),
                       Product(
                         "Rice",
                         "20",
-                        "15.00"
+                        "15.00",
+                        false
                       ),
                       Product(
                         "Spirit",
                         "35",
-                        "2.00"
+                        "2.00",
+                        false
                       ),
                       Product(
                         "Pepsi",
                         "30",
-                        "15.00"
+                        "15.00",
+                        false
                       ),
                       Product(
                         "Bread",
                         "30",
-                        "5.99"
+                        "5.99",
+                        false
                       ),
                       Product(
                         "Gum",
-                        "30",
-                        "0.89"
+                        "1",
+                        "0.89",
+                        true
                       ),
                       Product(
                         "Coconut",
                         "30",
-                        "5.20"
+                        "5.20",
+                        false
                       ),
                     ],
                   ),

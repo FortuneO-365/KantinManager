@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/components/text_form_field.dart';
-import 'package:kantin_management/pages/auth/email_verification.dart';
 import 'package:kantin_management/pages/auth/login.dart';
 import 'package:kantin_management/services/api_services.dart';
 

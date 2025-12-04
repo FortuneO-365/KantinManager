@@ -22,26 +22,50 @@ class CounterInput extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Minus Button
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: onDecrement,
-          ),
-
-          // Number Display (Centered)
           Expanded(
-            child: Text(
-              value.toString(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
+              child: Text(
+                value.toString(),
+                textAlign: TextAlign.left,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
             ),
           ),
 
-          // Add Button
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: onIncrement,
-          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 0.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+            
+                IconButton(
+                  style: IconButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                    minimumSize: Size(20.0, 7.0),
+                    maximumSize: Size(40.0, 20.0),
+                    shape: LinearBorder(),
+                  ),
+                  icon: const Icon(Icons.arrow_drop_up),
+                  onPressed: onIncrement,
+                ),
+            
+            
+            
+                IconButton(
+                  style: IconButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                    minimumSize: Size(20.0, 7.0),
+                    maximumSize: Size(40.0, 20.0),
+                    shape: LinearBorder(),
+                  ),
+                  icon: const Icon(Icons.arrow_drop_down),
+                  onPressed: onDecrement,
+                ),
+              ],
+            ),
+          )
+          // Minus Button
         ],
       ),
     );

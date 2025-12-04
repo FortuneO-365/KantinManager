@@ -8,5 +8,9 @@ namespace KantinManager.API.DTOs.UserDtos
 
         public string LastName { get; set; } = string.Empty;
 
+        public string Gender { get; set; } = string.Empty;
+
+        public string Address {  get; set; } = string.Empty;
+
     }
 }

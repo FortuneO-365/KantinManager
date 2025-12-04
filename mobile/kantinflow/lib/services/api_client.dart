@@ -4,7 +4,7 @@ import 'token_storage.dart';
 class ApiClient {
   static final Dio dio = Dio(
     BaseOptions(
-      baseUrl: "https://10.0.2.2:7131/api", // Flutter emulator
+      baseUrl: "https://localhost:7131/api", // Flutter emulator
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       contentType: "application/json",

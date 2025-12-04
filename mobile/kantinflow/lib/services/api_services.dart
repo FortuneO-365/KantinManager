@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:kantin_management/models/dashboard_stats.dart';
+import 'package:kantin_management/models/user.dart';
 import 'package:kantin_management/services/api_client.dart';
 import 'package:kantin_management/services/token_storage.dart';
 
@@ -36,20 +38,36 @@ class ApiServices {
   }
 
   Future<bool> login(String email, String password) async {
-    final response = await ApiClient.dio.post(
-      "/auth/login",
-      data: {"email": email, "password": password},
-    );
+    try {
+      // 1. Wrap the potentially failing API call.
+      final response = await ApiClient.dio.post(
+        "/auth/login",
+        data: {"email": email, "password": password},
+      );
 
-    final accessToken = response.data["accessToken"];
-    final refreshToken = response.data["refreshToken"];
+      // 2. Check for success status (200-299)
+      if (response.statusCode! >= 200 && response.statusCode! <= 299) {
+        final accessToken = response.data["accesstoken"];
+        final refreshToken = response.data["refreshToken"];
 
-    await TokenStorage.saveTokens(accessToken, refreshToken);
-    return true;
+        // 3. This part is critical—if token storage fails, it will catch the error.
+        await TokenStorage.saveTokens(accessToken, refreshToken); 
+        
+        return true; // SUCCESS path returns true
+      } 
+      
+      // If status is NOT 2xx (e.g., 401, 404)
+      return false;
+
+    } catch (e) {
+      // 4. This catches network errors, storage errors, or other unexpected errors.
+      return false;
+    }
   }
 
-  Future<Response> getUser() {
-    return ApiClient.dio.get("/user/me");
+  Future<User> getUser() async{
+    final response = await ApiClient.dio.get("/user/me");
+    return User.fromJson(response.data);
   }
 
   Future<Response> updateUser({String? firstName, String? lastName, String? email}) {
@@ -89,6 +107,21 @@ class ApiServices {
 
   Future<Response> deleteAccount() {
     return ApiClient.dio.delete("/user/me");
+  }
+
+
+  Future<dynamic> getDashboardSummary() async{
+    try{
+      final response = await ApiClient.dio.get(
+        "/dashboard/summary",
+      );
+
+      print(response.data);
+      return response.data;
+    }catch(e){
+      print(e.toString());
+      return e.toString();
+    }
   }
 
 }

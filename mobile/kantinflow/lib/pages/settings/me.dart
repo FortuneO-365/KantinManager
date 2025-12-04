@@ -1,8 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:kantin_management/pages/auth/login.dart';
+import 'package:kantin_management/pages/sales/sales_history.dart';
 import 'package:kantin_management/pages/settings/profile.dart';
+import 'package:kantin_management/pages/settings/security.dart';
 
 class Settings extends StatelessWidget{
-  const Settings({super.key});
+
+  final String firstName;
+  final String lastName;
+  final String email;
+
+  const Settings({
+    super.key,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +71,8 @@ class Settings extends StatelessWidget{
                           height: 60,
                         ),
                         const SizedBox(width: 12.0),
-                        const Text(
-                          "Micheal Scott",
+                        Text(
+                          '$firstName $lastName',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 22.0,
@@ -95,7 +108,15 @@ class Settings extends StatelessWidget{
                         Expanded(
                           child: TextButton(
                             onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Profile()));
+                              Navigator.push(
+                                context, 
+                                MaterialPageRoute(builder: (context) => Profile(
+                                    firstName: firstName,
+                                    lastName: lastName,
+                                    email: email,
+                                  )
+                                )
+                              );
                             },
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.black87,
@@ -126,7 +147,7 @@ class Settings extends StatelessWidget{
                         Expanded(
                           child: TextButton(
                             onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Profile()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => Security()));
                             },
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.black87,
@@ -173,7 +194,9 @@ class Settings extends StatelessWidget{
                       children: [
                         Expanded(
                           child: TextButton(
-                            onPressed: (){},
+                            onPressed: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => SalesHistory()));
+                            },
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.black87,
                               overlayColor: Colors.white
@@ -261,13 +284,19 @@ class Settings extends StatelessWidget{
                   borderRadius: BorderRadius.circular(8.0),
                   color: Colors.white,
                 ),
-                child: ElevatedButton(onPressed: () {},style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[300],
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(8.0)
-                  )
-                ), child: Text("Sign Out")),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[300],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.circular(8.0)
+                    )
+                  ), 
+                  child: Text("Sign Out")
+                ),
               )
             ],
           ),

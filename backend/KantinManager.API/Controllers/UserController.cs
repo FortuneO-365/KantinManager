@@ -53,7 +53,9 @@ namespace KantinManager.API.Controllers
                     user.LastName,
                     user.Email,
                     user.EmailVerified,
-                    user.ProfileImageUrl
+                    user.ProfileImageUrl,
+                    user.Gender,
+                    user.Address
                 });
             }
             catch (Exception ex)
@@ -93,6 +95,12 @@ namespace KantinManager.API.Controllers
                 if (!string.IsNullOrWhiteSpace(dto.LastName))
                     user.LastName = dto.LastName;
 
+                if (!string.IsNullOrWhiteSpace(dto.Gender))
+                    user.Gender = dto.Gender;
+
+                if (!string.IsNullOrWhiteSpace(dto.Address))
+                    user.Address = dto.Address;
+
                 await _context.SaveChangesAsync();
 
                 return Ok(new
@@ -105,7 +113,9 @@ namespace KantinManager.API.Controllers
                         user.LastName,
                         user.Email,
                         user.EmailVerified,
-                        user.ProfileImageUrl
+                        user.ProfileImageUrl,
+                        user.Gender,
+                        user.Address
                     }
                 });
 

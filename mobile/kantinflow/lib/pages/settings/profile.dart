@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 
 class Profile extends StatelessWidget{
-  const Profile({super.key});
+
+  final String firstName;
+  final String lastName;
+  final String email;
+
+  const Profile({
+    super.key, 
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +59,8 @@ class Profile extends StatelessWidget{
                           width: 130,
                           height: 130,
                         ),
-                        const Text(
-                          "Micheal",
+                        Text(
+                          firstName,
                           style: TextStyle(
                             fontSize: 20.0,
                             fontWeight: FontWeight.bold,
@@ -110,7 +120,7 @@ class Profile extends StatelessWidget{
                         Row(
                           children: [
                             Text(
-                              "Micheal",
+                              firstName,
                             ),
                             SizedBox(width: 4.0,),
                             Icon(
@@ -141,7 +151,7 @@ class Profile extends StatelessWidget{
                         Row(
                           children: [
                             Text(
-                              "Scott",
+                              lastName,
                             ),
                             SizedBox(width: 4.0,),
                             Icon(
@@ -172,7 +182,7 @@ class Profile extends StatelessWidget{
                         Row(
                           children: [
                             Text(
-                              "fort***ail.com",
+                              email,
                             ),
                             SizedBox(width: 4.0,),
                             Icon(
@@ -195,7 +205,7 @@ class Profile extends StatelessWidget{
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "Password",
+                          "Gender",
                           style: TextStyle(
                             color: Color.fromARGB(255, 70, 70, 70),
                           ),
@@ -203,7 +213,41 @@ class Profile extends StatelessWidget{
                         Row(
                           children: [
                             Text(
-                              "**********",
+                              "",
+                              style: TextStyle(
+                                
+                              ),
+                            ),
+                            SizedBox(width: 4.0,),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 12.0,
+                            )
+                          ],
+                        )
+                      ],
+                    )
+                  ),
+                  SizedBox(height: 10.0,),
+                  TextButton(
+                    onPressed: (){}, 
+                    style: TextButton.styleFrom(
+                      overlayColor: Colors.white,
+                      foregroundColor: Colors.blue.shade300
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Number",
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 70, 70, 70),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "",
                               style: TextStyle(
                                 
                               ),

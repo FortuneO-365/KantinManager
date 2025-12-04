@@ -8,8 +8,6 @@ namespace KantinManager.API.DTOs.ProductDtos
         [Required(AllowEmptyStrings = false, ErrorMessage ="ProductName can't be empty.")]
         public string ProductName { get; set; } = string.Empty;
 
-        public decimal CostPrice { get; set; }
-
         [Required(ErrorMessage = "Selling Price can't be empty")]
         public decimal SellingPrice { get; set; }
 

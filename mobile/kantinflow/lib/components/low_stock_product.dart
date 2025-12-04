@@ -12,9 +12,9 @@ class LowStockProduct extends StatelessWidget{
         borderRadius: BorderRadius.circular(8.0),                  
         border: Border.all(
           width: 1.0,
-          color: Colors.grey.shade300,
+          color: Colors.white70,
         ),
-        color: Colors.grey.shade100,
+        color: Colors.white,
         
       ),
       child: Row(
@@ -51,12 +51,8 @@ class LowStockProduct extends StatelessWidget{
           Container(
             padding: EdgeInsets.fromLTRB(6.0, 2.0, 6.0, 2.0),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18.0),
-              border: Border.all(
-                width: 1.0,
-                color: Colors.amber.shade500
-              ),
-              color: const Color.fromARGB(180, 255, 214, 79)
+              borderRadius: BorderRadius.circular(8.0),
+              color: const Color.fromARGB(127, 255, 214, 79)
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,

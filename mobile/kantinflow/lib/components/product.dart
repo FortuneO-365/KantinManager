@@ -5,8 +5,9 @@ class Product extends StatelessWidget{
   final String title;
   final String quantity;
   final String price;
+  bool isLow = false;
 
-  const Product(this.title, this.quantity, this.price, {super.key});
+  Product(this.title, this.quantity, this.price, this.isLow, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,41 +16,53 @@ class Product extends StatelessWidget{
       padding: EdgeInsets.fromLTRB(12.0, 8.0, 12.0, 8.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.0),
-        color: Colors.white70,
+        color: Colors.white,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 70.0,
-            width: 70.0,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.0),
-              color: Colors.grey,
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
+              Container(
+                height: 60.0,
+                width: 60.0,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.0),
+                  color: Colors.grey,
                 ),
               ),
-              Text(
-                '$quantity in Stock',
+              SizedBox(width: 16.0,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '\$$price',
+                  ),
+                ],
               ),
             ],
           ),
-          Text(
-            '\$$price',
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              color: isLow ? const Color.fromARGB(127, 255, 214, 79) : const Color.fromARGB(127, 100, 180, 246)
+            ),
+            child: Text(
+              '$quantity in stock',
+              style: TextStyle(
+              ),
             ),
           ),
+          
         ],
       ),
     );

@@ -39,9 +39,9 @@ class ProductTextField extends StatelessWidget{
             decoration: InputDecoration(
               hintText: hint,
               filled: true,
-              fillColor: Colors.grey.shade100,
+              fillColor: Colors.white,
               hintStyle: TextStyle(
-                color: Colors.grey.shade400
+                color: Colors.grey.shade300
               ),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(

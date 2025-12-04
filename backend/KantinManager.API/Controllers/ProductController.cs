@@ -35,11 +35,14 @@ namespace KantinManager.API.Controllers
             {
                 return Unauthorized("Missing or Invalid Token");
             }
+            else if (userId == "No token" || userId == "No Claim" || userId == "Error")
+            {
+                return Unauthorized("Invalid Token");
+            }
 
             var product = new Product
             {
                 Name = dto.ProductName,
-                CostPrice = dto.CostPrice,
                 SellingPrice = dto.SellingPrice,
                 Quantity = dto.Quantity,
                 Currency = dto.Currency,
@@ -60,6 +63,10 @@ namespace KantinManager.API.Controllers
             {
                 return Unauthorized("Missing or Invalid Token");
             }
+            else if (userId == "No token" || userId == "No Claim" || userId == "Error")
+            {
+                return Unauthorized("Invalid Token");
+            }
 
             var products = await _context.Products
                 .Where(p => p.UploadedBy == int.Parse(userId))
@@ -75,6 +82,10 @@ namespace KantinManager.API.Controllers
             if (userId == null)
             {
                 return Unauthorized("Missing or Invalid Token");
+            }
+            else if (userId == "No token" || userId == "No Claim" || userId == "Error")
+            {
+                return Unauthorized("Invalid");
             }
 
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.UploadedBy == int.Parse(userId));
@@ -101,6 +112,10 @@ namespace KantinManager.API.Controllers
             {
                 return Unauthorized("Missing or Invalid Token");
             }
+            else if (userId == "No token" || userId == "No Claim" || userId == "Error")
+            {
+                return Unauthorized("Invalid Token");
+            }
 
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.UploadedBy == int.Parse(userId));
             if (product == null)
@@ -111,11 +126,6 @@ namespace KantinManager.API.Controllers
             if (!string.IsNullOrEmpty(dto.ProductName)) 
             {
                 product.Name = dto.ProductName;
-            }
-
-            if (!string.IsNullOrEmpty(dto.CostPrice.ToString())) 
-            {
-                product.CostPrice = dto.CostPrice;
             }
 
             if (!string.IsNullOrEmpty(dto.SellingPrice.ToString())) 
@@ -147,6 +157,10 @@ namespace KantinManager.API.Controllers
             {
                 return Unauthorized("Missing or Invalid Token");
             }
+            else if (userId == "No token" || userId == "No Claim" || userId == "Error")
+            {
+                return Unauthorized("Invalid Token");
+            }
 
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id && p.UploadedBy == int.Parse(userId));
 
@@ -166,7 +180,13 @@ namespace KantinManager.API.Controllers
         {
             var userId = GetUserId();
             if (userId == null)
-                return Unauthorized("Invalid token");
+            {
+                return Unauthorized("Missing or Invalid Token");
+            }
+            else if (userId == "No token" || userId == "No Claim" || userId == "Error")
+            {
+                return Unauthorized("Invalid Token");
+            }
 
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded");
