@@ -5,13 +5,15 @@ class ProductTextField extends StatelessWidget{
   final TextEditingController controller;
   final TextInputType keyboardType;
   final String hint;
+  final String? initialValue;
   
   const ProductTextField({
     super.key,
     required this.title,
     required this.hint,
     required this.keyboardType,
-    required this.controller
+    required this.controller,
+    this.initialValue
   });
 
   @override
@@ -36,6 +38,7 @@ class ProductTextField extends StatelessWidget{
           child: TextFormField(
             controller: controller,
             keyboardType: keyboardType,
+            initialValue: initialValue,
             decoration: InputDecoration(
               hintText: hint,
               filled: true,

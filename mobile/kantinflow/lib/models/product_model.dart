@@ -4,7 +4,7 @@ class ProductModel {
   final String? photoUrl;
   final double sellingPrice;
   final int quantity;
-  final String? currency;
+  final int currency;
   final int uploadedBy;
 
   const ProductModel({
@@ -13,7 +13,7 @@ class ProductModel {
     required this.sellingPrice,
     required this.quantity,
     required this.uploadedBy,
-    this.currency,
+    required this.currency,
     this.photoUrl
   });
 

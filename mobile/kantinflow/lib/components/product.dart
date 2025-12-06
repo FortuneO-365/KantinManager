@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class Product extends StatelessWidget{
 
   final String title;
@@ -7,7 +8,14 @@ class Product extends StatelessWidget{
   final String price;
   bool isLow = false;
 
-  Product(this.title, this.quantity, this.price, this.isLow, {super.key});
+  Product({
+    super.key,
+    required this.title,
+    required this.quantity,
+    required this.price,
+    required this.isLow,
+
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +65,7 @@ class Product extends StatelessWidget{
               color: isLow ? const Color.fromARGB(127, 255, 214, 79) : const Color.fromARGB(127, 100, 180, 246)
             ),
             child: Text(
-              '$quantity in stock',
+              quantity,
               style: TextStyle(
               ),
             ),

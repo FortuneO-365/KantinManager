@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
-        transitionBuilder: (child, animation) {
+        transitionBuilder: (child, animation) { 
           final slideAnimation = Tween<Offset>(
             begin: const Offset(1, 0),
             end: Offset.zero,

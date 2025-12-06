@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/components/text_form_field.dart';
+import 'package:kantin_management/pages/auth/email_verification.dart';
 import 'package:kantin_management/pages/auth/login.dart';
 import 'package:kantin_management/services/api_services.dart';
 
@@ -15,7 +16,7 @@ class Register extends StatelessWidget{
   final TextEditingController cPassword  = TextEditingController();
   final TextEditingController cConfirmPassword  = TextEditingController();
 
-  String ValidateUserDetails(){
+  void ValidateUserDetails(BuildContext context){
     // Implement registration logic here
     String firstName = cFirstName.text.trim();
     String lastName = cLastName.text.trim();
@@ -24,43 +25,100 @@ class Register extends StatelessWidget{
     String confirmPassword = cConfirmPassword.text.trim();
 
     if( firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty){
-      return "Field(s) cannot be empty";
+      showToast(context,"Field(s) cannot be empty");
+      return;
     }
 
     if( password.length < 8 ){
-      return "Password must be at least 8 characters long";
+      showToast(context,"Password must be at least 8 characters long");
+      return;
     }
 
     if(password.length > 30 ){
-      return "Password cannot exceed 30 characters";
+      showToast(context,"Password cannot exceed 30 characters");
+      return;
     }
 
     if(password != confirmPassword){
-      return "Passwords do not match";
+      showToast(context,"Passwords do not match");
+      return;
     }
 
     if(!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)){
-      return "Invalid email format";
+      showToast(context,"Invalid email format");
+      return;
     }
+  }
 
-    return "Success";
+  void showToast(BuildContext context,String message){
+    // Implement toast message display
+      OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50.0, // Position from the bottom
+        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry
+    Overlay.of(context).insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: CircularProgressIndicator(
+          color: mainColor,
+          backgroundColor: const Color.fromARGB(50, 255, 255, 255),
+        ),
+      ),
+    );
+  }
+
+  void hideLoading(BuildContext context) {
+    Navigator.pop(context);
   }
 
   void registerUser(BuildContext context) async {
 
-    String result = ValidateUserDetails();
+    ValidateUserDetails(context);
+    final data = await ApiServices().registerUser(
+      firstName: cFirstName.text,
+      lastName: cLastName.text,
+      email: cEmail.text,
+      password: cPassword.text,
+    );
 
-    if(result == "Success"){
-      final response = await ApiServices().registerUser(
-        firstName: cFirstName.text,
-        lastName: cLastName.text,
-        email: cEmail.text,
-        password: cPassword.text,
+    if(data.toString() == "User Registered Successfully. Check your mail for a verification code"){
+
+      Navigator.pushReplacement(
+        context, 
+        MaterialPageRoute(builder: (context) => EmailVerification(emailAddress: cEmail.text,))
       );
-
-      print(response);
-    }else{
-      print(result);
     }
 
   }
@@ -103,7 +161,7 @@ class Register extends StatelessWidget{
                     ),
                   ),
                   Expanded(
-                    child: Column(
+                    child: ListView(
                       children: [
                         Center(
                           child: Text(

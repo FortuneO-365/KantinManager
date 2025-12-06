@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kantin_management/components/text_form_field.dart';
 import 'package:kantin_management/main.dart';
 import 'package:kantin_management/models/user.dart';
+import 'package:kantin_management/pages/auth/email_verification.dart';
 import 'package:kantin_management/pages/auth/forgot_password.dart';
 import 'package:kantin_management/pages/auth/register.dart';
 import 'package:kantin_management/services/api_services.dart';
@@ -15,15 +16,17 @@ class Login extends StatelessWidget {
   final TextEditingController cEmail = TextEditingController();
   final TextEditingController cPassword = TextEditingController();
 
-  String validateUserDetails() {
+  String validateUserDetails(BuildContext context) {
     String email = cEmail.text.trim();
     String password = cPassword.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
+      showToast(context, "Field(s) cannot be empty");
       return "Field(s) cannot be empty";
     }
 
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      showToast(context, "Invalid email format");
       return "Invalid email format";
     }
 
@@ -47,13 +50,50 @@ class Login extends StatelessWidget {
     Navigator.pop(context);
   }
 
+  void showToast(BuildContext context,String message){
+    // Implement toast message display
+      OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50.0, // Position from the bottom
+        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry
+    Overlay.of(context).insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
   void login(BuildContext context) async{
-    final String validationResult = validateUserDetails();
+    final String validationResult = validateUserDetails(context);
     if(validationResult != "Success"){
       return ;
     }
     final data = await ApiServices().login(cEmail.text.trim(), cPassword.text.trim());
-    if(data){
+    print(data.toString());
+    if(data.toString() == "Success"){
       showLoading(context);
       User user = await ApiServices().getUser();
       hideLoading(context);
@@ -61,6 +101,18 @@ class Login extends StatelessWidget {
         context, 
         MaterialPageRoute(builder: (_) => HomePage(user: user))
       );
+    }else if(data.toString().toLowerCase().contains("verify your email")){
+      showToast(context, "Email not verified. Redirecting...");
+      Future.delayed(Duration(seconds: 3), () {
+        Navigator.pushReplacement(
+          context, 
+          MaterialPageRoute(builder: (_) => EmailVerification(emailAddress: cEmail.text.trim(),))
+        );
+      });
+    }else if(data.toString().toLowerCase().contains("invalid credentials")){
+      showToast(context, "Email or password is incorrect");
+    }else{
+      showToast(context, "Something went wrong. Try again later");
     }
   }
 

@@ -85,219 +85,225 @@ class Settings extends StatelessWidget{
                 ),
               ),
               SizedBox(height: 20,),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 2.0),
-                child: Text(
-                  "Account"
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.all(16.0),
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+              Expanded(
+                child: ListView(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: (){
-                              Navigator.push(
-                                context, 
-                                MaterialPageRoute(builder: (context) => Profile(
-                                    firstName: firstName,
-                                    lastName: lastName,
-                                    email: email,
-                                  )
-                                )
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.black87,
-                              overlayColor: Colors.white
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Profile"
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 12.0,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 2.0),
+                      child: Text(
+                        "Account"
+                      ),
                     ),
-                    SizedBox(height: 6.0,),
-                    Divider(height: 1.0,),
-                    SizedBox(height: 6.0,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => Security()));
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.black87,
-                              overlayColor: Colors.white
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Security"
+                    Container(
+                      margin: EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.white,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: (){
+                                    Navigator.push(
+                                      context, 
+                                      MaterialPageRoute(builder: (context) => Profile(
+                                          firstName: firstName,
+                                          lastName: lastName,
+                                          email: email,
+                                        )
+                                      )
+                                    );
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black87,
+                                    overlayColor: Colors.white
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Profile"
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 12.0,
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 12.0,
-                                )
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 6.0,),
+                          Divider(height: 1.0,),
+                          SizedBox(height: 6.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Security()));
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black87,
+                                    overlayColor: Colors.white
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Security"
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 12.0,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 2.0),
+                      child: Text(
+                        "Notification & Themes"
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.all(16.0),
+                      padding: EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.white,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => SalesHistory()));
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black87,
+                                    overlayColor: Colors.white
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Transaction History"
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 12.0,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 6.0,),
+                          Divider(height: 1.0,),
+                          SizedBox(height: 6.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: (){},
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black87,
+                                    overlayColor: Colors.white
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Notification Settings"
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 12.0,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 6.0,),
+                          Divider(height: 1.0,),
+                          SizedBox(height: 6.0,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: (){},
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black87,
+                                    overlayColor: Colors.white
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Themes"
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 12.0,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ]
+                      )
+                    ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.white,
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[300],
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(8.0)
+                          )
+                        ), 
+                        child: Text("Sign Out")
+                      ),
+                    )
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 2.0),
-                child: Text(
-                  "Notification & Themes"
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.all(16.0),
-                padding: EdgeInsets.all(16.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => SalesHistory()));
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.black87,
-                              overlayColor: Colors.white
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Transaction History"
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 12.0,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 6.0,),
-                    Divider(height: 1.0,),
-                    SizedBox(height: 6.0,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: (){},
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.black87,
-                              overlayColor: Colors.white
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Notification Settings"
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 12.0,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 6.0,),
-                    Divider(height: 1.0,),
-                    SizedBox(height: 6.0,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: (){},
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.black87,
-                              overlayColor: Colors.white
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "Themes"
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios,
-                                  size: 12.0,
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  ]
-                )
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(16.0, 4.0, 16.0, 4.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: Colors.white,
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue[300],
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusGeometry.circular(8.0)
-                    )
-                  ), 
-                  child: Text("Sign Out")
-                ),
-              )
             ],
           ),
         ],

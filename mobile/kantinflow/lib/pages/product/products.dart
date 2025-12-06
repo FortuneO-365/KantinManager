@@ -1,276 +1,299 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/components/product.dart';
+import 'package:kantin_management/models/product_model.dart';
 import 'package:kantin_management/pages/product/add_product.dart';
+import 'package:kantin_management/services/api_services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
-class Products extends StatelessWidget {
-  Products({super.key});
+// ignore: must_be_immutable
+class Products extends StatefulWidget{
+
+  const Products({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _ProductsState();
+}
+
+class _ProductsState extends State<Products> {
+  
 
   final Color mainColor = Color.fromARGB(255, 144, 202, 249);
 
+  List<ProductModel> products = [];
+
+  Future<List<ProductModel>> loadProducts() async{
+    dynamic data = await ApiServices().getAllProducts();
+      products = (data as List)
+        .map((item) => ProductModel.fromJson(item))
+        .toList();
+    return products; 
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [ 
-          Positioned.fill(
-            child: Container(
-              color: Color.fromARGB(255, 245, 245, 245),
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
+    return FutureBuilder(
+      future: loadProducts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-                  child: Text(
-                    "All Products",
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      
-                    ),
-                  ),
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text("Error: ${snapshot.error}")),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(child: Text("No data found")),
+          );
+        }
+
+        return Scaffold(
+          body: Stack(
+            children: [ 
+              Positioned.fill(
+                child: Container(
+                  color: Color.fromARGB(255, 245, 245, 245),
                 ),
-                SizedBox(height: 10.0,),
-                Row(
+              ),
+              Container(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.0),
-                          border: Border.all(
-                            width: 1.0,
-                            color: Colors.grey.shade300
-                          ),
-                          color: Colors.white
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Products",
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14.0
-                              ),
-                            ),
-                            SizedBox(height: 10.0,),
-                            Text(
-                              "10",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16.0
-                              ),
-                            )
-                          ],
+                    Container(
+        
+                      child: Text(
+                        "All Products",
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          
                         ),
                       ),
                     ),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.0),
-                          border: Border.all(
-                            width: 1.0,
-                            color: Colors.grey.shade300
+                    SizedBox(height: 10.0,),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(
+                                width: 1.0,
+                                color: Colors.grey.shade300
+                              ),
+                              color: Colors.white
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Products",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14.0
+                                  ),
+                                ),
+                                SizedBox(height: 10.0,),
+                                Text(
+                                  "${products.length}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16.0
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                          color: Colors.white
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Value",
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14.0
+                        SizedBox(width: 8.0),
+                        SizedBox(width: 8.0),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(
+                                width: 1.0,
+                                color: Colors.grey.shade300
+                              ),
+                              color: Colors.white
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Low Stock",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14.0
+                                  ),
+                                ),
+                                SizedBox(height: 10.0,),
+                                Text(
+                                  "${products.where((p) => p.quantity < 5).length}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16.0
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextSelectionTheme(
+                            data: TextSelectionThemeData(),
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(Icons.search),
+                                filled: true,
+                                fillColor: Colors.white,
+                                hoverColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.circular(8.0)
+                                ),
+                                hintText: "Search",
                               ),
                             ),
-                            SizedBox(height: 10.0,),
-                            Text(
-                              "\$257.38",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16.0
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.0),
-                          border: Border.all(
-                            width: 1.0,
-                            color: Colors.grey.shade300
                           ),
-                          color: Colors.white
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Low Stock",
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 14.0
-                              ),
-                            ),
-                            SizedBox(height: 10.0,),
-                            Text(
-                              "3",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16.0
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextSelectionTheme(
-                        data: TextSelectionThemeData(),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.search),
-                            filled: true,
-                            fillColor: Colors.white,
+                        SizedBox(width: 8.0),
+                        IconButton(
+                          onPressed: () {
+              
+                          },
+                          style: IconButton.styleFrom(
                             hoverColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(8.0)
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
                             ),
-                            hintText: "Search",
+                            backgroundColor: Colors.white,
+                            padding: EdgeInsets.all(12.0)
                           ),
-                        ),
-                      ),
+                          icon: Icon(
+                            Icons.filter_alt_outlined
+                          ),
+                        )
+                      ],
                     ),
-                    SizedBox(width: 8.0),
-                    IconButton(
-                      onPressed: () {
-          
-                      },
-                      style: IconButton.styleFrom(
-                        hoverColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        backgroundColor: Colors.white,
-                        padding: EdgeInsets.all(12.0)
-                      ),
-                      icon: Icon(
-                        Icons.filter_alt_outlined
-                      ),
+                    SizedBox(height: 20.0),
+                    Expanded(
+                      child: products.isNotEmpty ?
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          final product = products[index];
+                          return Material(
+                            child: Slidable(
+                              key: UniqueKey(),
+                              endActionPane: ActionPane(
+                                motion: ScrollMotion(), 
+                                children: [
+                                  SlidableAction(
+                                    onPressed: (conext){
+                                    },
+                                    backgroundColor: Colors.blue.shade100,
+                                    icon: Icons.edit,
+                                    label: 'Edit',
+                                  ),
+                                  SlidableAction(
+                                    onPressed: (context) {
+                                      print("Delete Coca-Cola");
+                                    },
+                                    backgroundColor: Colors.red.shade100,
+                                    icon: Icons.delete,
+                                    label: 'Delete',
+                                  ),
+                                ]
+                              ),
+                            
+                              child: Product(
+                                title: product.name,
+                                quantity: "${product.quantity}",
+                                price: "${product.sellingPrice}",
+                                isLow: product.quantity < 5 ? true: false
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                      :
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children:[
+                          Container(
+                            width:50,
+                            height: 50,
+                            padding: EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: const Color.fromARGB(29, 100, 180, 246),
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Icon(
+                              Icons.archive_outlined,
+                              size: 26.0,
+                            ),
+                          ),
+                          SizedBox(height: 16.0,),
+                          Center(
+                            child: Text(
+                              "You don't have any product yet",
+                              style: TextStyle(
+                                color: Colors.grey
+                              ),
+                            ),
+                          ),
+                        ]
+                      )
                     )
                   ],
                 ),
-                SizedBox(height: 20.0),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      Product(
-                        "Coca-Cola",
-                        "30",
-                        "1.99",
-                        false
-                      ),
-                      Product(
-                        "Fanta",
-                        "15",
-                        "5.00",
-                        false
-                      ),
-                      Product(
-                        "Egg",
-                        "5",
-                        "10.00",
-                        true
-                      ),
-                      Product(
-                        "Mint-tea",
-                        "3",
-                        "10.00",
-                        true
-                      ),
-                      Product(
-                        "Rice",
-                        "20",
-                        "15.00",
-                        false
-                      ),
-                      Product(
-                        "Spirit",
-                        "35",
-                        "2.00",
-                        false
-                      ),
-                      Product(
-                        "Pepsi",
-                        "30",
-                        "15.00",
-                        false
-                      ),
-                      Product(
-                        "Bread",
-                        "30",
-                        "5.99",
-                        false
-                      ),
-                      Product(
-                        "Gum",
-                        "1",
-                        "0.89",
-                        true
-                      ),
-                      Product(
-                        "Coconut",
-                        "30",
-                        "5.20",
-                        false
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
-
-          Positioned(
-            bottom: 36.0,
-            right: 26.0,
-            child: IconButton.filled(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddProduct()),
-                );
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: mainColor
               ),
-              icon: Icon(
-                Icons.add,
-                color: Colors.white,
-                
+        
+              Positioned(
+                bottom: 36.0,
+                right: 26.0,
+                child: IconButton.filled(
+                  onPressed: () async{
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddProduct()),
+                    );
+
+                    if (result == true) {
+                      setState(() {
+                        loadProducts(); // refresh list
+                      });
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: mainColor
+                  ),
+                  icon: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    
+                  )
+                )
               )
-            )
+            ]
           )
-        ]
-      )
+        );
+      }
     );
   }
 }

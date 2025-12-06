@@ -2,91 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kantin_management/components/image_picker_field.dart';
 import 'package:kantin_management/components/product_text_field.dart';
-import 'package:kantin_management/services/api_services.dart';
 
-class AddProduct extends StatelessWidget{
-  AddProduct({super.key});
+class EditProduct extends StatelessWidget{
+  final String initialValue;
+  EditProduct({
+    super.key,
+    required this.initialValue,
+  });
 
   final TextEditingController cProductName = TextEditingController();
   final TextEditingController cPrice = TextEditingController();
   final TextEditingController cQuantity = TextEditingController();
-
-  void showToast(BuildContext context,String message){
-    // Implement toast message display
-      OverlayEntry overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 50.0, // Position from the bottom
-        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
-        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-            margin: EdgeInsets.symmetric(horizontal: 16.0),
-            decoration: BoxDecoration(
-              color: Colors.black87,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-            child: Center(
-              child: Text(
-                message,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // Insert the overlay entry
-    Overlay.of(context).insert(overlayEntry);
-
-    // Remove the overlay entry after a delay
-    Future.delayed(Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
-  }
-
-  void validateInput(BuildContext context){
-    String productName = cProductName.text.trim();
-    String priceText = cPrice.text.trim();
-    String quantityText = cQuantity.text.trim();
-
-    if(productName.isEmpty){
-      // Show error for product name
-      showToast(context,"Product name cannot be empty");
-      return;
-    }
-
-    double? price = double.tryParse(priceText);
-    if(price == null || price < 0){
-      // Show error for price
-      showToast(context,"Enter a valid price");
-      return;
-    }
-
-    int? quantity = int.tryParse(quantityText);
-    if(quantity == null || quantity < 0){
-      // Show error for quantity
-      showToast(context,"Enter a valid quantity");
-      return;
-    }
-
-    // Input is valid, proceed with further actions
-  }
-
-  void addProduct(BuildContext context) async{
-    validateInput(context);
-    dynamic data = await ApiServices().addNewProduct(
-      productName: cProductName.text.trim(), 
-      sellingPrice: double.parse(cPrice.text.trim()), 
-      quantity: int.parse(cQuantity.text.trim())
-    );
-
-    if(data.toString() == "Product Added Successfully"){
-      Navigator.pop(context, true);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +88,7 @@ class AddProduct extends StatelessWidget{
                         hint: "e.g Wireless Mouse", 
                         keyboardType: TextInputType.text,
                         controller: cProductName,
+                        initialValue: initialValue,
                       ),
                       SizedBox(height: 16.0),
                       Column(
@@ -207,14 +134,16 @@ class AddProduct extends StatelessWidget{
                         title: "Price", 
                         hint: "0.00", 
                         keyboardType: TextInputType.number,
-                        controller: cPrice
+                        controller: cPrice,
+                        initialValue: initialValue,
                       ),
                       SizedBox(height: 16.0),
                       ProductTextField(
                         title: "Quantity", 
                         hint: "0", 
                         keyboardType: TextInputType.number,
-                        controller: cQuantity
+                        controller: cQuantity,
+                        initialValue: initialValue,
                       ),
                       SizedBox(height: 16.0),
                       ImagePickerField(
@@ -224,7 +153,7 @@ class AddProduct extends StatelessWidget{
                       SizedBox(height: 30.0),
                       ElevatedButton(
                         onPressed: (){
-                          addProduct(context);
+                          // addProduct(context);
                         }, 
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(double.infinity, 50),

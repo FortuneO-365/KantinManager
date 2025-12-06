@@ -52,7 +52,7 @@ namespace KantinManager.API.Controllers
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            return Ok(product);
+            return Ok("Product Added Successfully");
         }
 
         [HttpGet]

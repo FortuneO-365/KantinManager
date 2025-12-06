@@ -119,7 +119,7 @@ namespace KantinManager.API.Controllers
 
             if (!user.EmailVerified)
             {
-                return Unauthorized("Verify your email");
+                return BadRequest("Verify your email");
             }
 
             var token = _jwtService.GenerateToken(user);

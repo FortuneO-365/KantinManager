@@ -362,8 +362,8 @@ class Dashboard extends StatelessWidget {
                                   ?
                                   ListView.builder(
                                     shrinkWrap: true,
-                                    itemCount: stats.lowStock!.length,
                                     physics: AlwaysScrollableScrollPhysics(),
+                                    itemCount: stats.lowStock!.length,
                                     itemBuilder: (context, index) {
                                       final product = stats.lowStock![index];
                                       return Column(

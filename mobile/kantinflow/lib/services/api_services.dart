@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:kantin_management/models/dashboard_stats.dart';
 import 'package:kantin_management/models/user.dart';
 import 'package:kantin_management/services/api_client.dart';
 import 'package:kantin_management/services/token_storage.dart';
@@ -24,25 +23,52 @@ class ApiServices {
     );
   }
 
-  Future<Response> verifyUser({
+  Future<dynamic> verifyUser({
     required String email,
     required String verificationCode,
-  }) {
-    return ApiClient.dio.post(
-      "/auth/verify-email",
-      data: {
-        "email": email,
-        "code": verificationCode,
-      },
-    );
+  }) async {
+    try {
+      final response = await ApiClient.dio.post(
+        "/auth/verify-email",
+        data: {
+          "email": email,
+          "code": verificationCode,
+        },
+        options: Options(
+          validateStatus: (status) {
+            return status != null && status <= 500; 
+          },
+        ),
+      );
+      return response.data;
+    } catch (e) {
+      e.toString();
+    }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<dynamic> resendCode({
+    required String email,
+  })async{
+    final response = await ApiClient.dio.post(
+      "/auth/resend-verification",
+      data: {
+        "email": email
+      },
+    );
+    return response.data;
+  }
+
+  Future<dynamic> login(String email, String password) async {
     try {
       // 1. Wrap the potentially failing API call.
       final response = await ApiClient.dio.post(
         "/auth/login",
         data: {"email": email, "password": password},
+        options: Options(
+          validateStatus: (status) {
+            return status != null && status <= 500; 
+          },
+        ),
       );
 
       // 2. Check for success status (200-299)
@@ -53,15 +79,13 @@ class ApiServices {
         // 3. This part is critical—if token storage fails, it will catch the error.
         await TokenStorage.saveTokens(accessToken, refreshToken); 
         
-        return true; // SUCCESS path returns true
-      } 
-      
-      // If status is NOT 2xx (e.g., 401, 404)
-      return false;
+        return "Success"; // SUCCESS path returns true
+      }
+      return response.data;
 
     } catch (e) {
       // 4. This catches network errors, storage errors, or other unexpected errors.
-      return false;
+      return e.toString();
     }
   }
 
@@ -115,13 +139,41 @@ class ApiServices {
       final response = await ApiClient.dio.get(
         "/dashboard/summary",
       );
-
-      print(response.data);
       return response.data;
     }catch(e){
-      print(e.toString());
       return e.toString();
     }
   }
 
+  Future<dynamic> getAllProducts() async{
+    try{
+      final response = await ApiClient.dio.get(
+        "/Product",
+      );
+      return response.data;
+    }catch(e){
+      return e.toString();
+    }
+  }
+
+  Future<dynamic> addNewProduct({
+  required String productName,
+  required double sellingPrice,
+  required int quantity,
+}) async{
+    try{
+      final response = await ApiClient.dio.post(
+        "/Product",
+        data: {
+          "productName": productName,
+          "sellingPrice": sellingPrice,
+          "quantity": quantity,
+          "currency": 1  
+        },
+      );
+      return response.data;
+    }catch(e){
+      return e.toString();
+    }
+  }
 }
