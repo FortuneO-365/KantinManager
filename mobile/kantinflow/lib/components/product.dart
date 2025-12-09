@@ -7,6 +7,7 @@ class Product extends StatelessWidget{
   final String quantity;
   final String price;
   bool isLow = false;
+  final String? imgUrl;
 
   Product({
     super.key,
@@ -14,7 +15,7 @@ class Product extends StatelessWidget{
     required this.quantity,
     required this.price,
     required this.isLow,
-
+    this.imgUrl
   });
 
   @override
@@ -27,21 +28,30 @@ class Product extends StatelessWidget{
         color: Colors.white,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                height: 60.0,
-                width: 60.0,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0),
-                  color: Colors.grey,
-                ),
+            (imgUrl == null)
+            ?
+            Container(
+              height: 60.0,
+              width: 60.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+                color: Colors.grey,
               ),
-              SizedBox(width: 16.0,),
-              Column(
+            )
+            :
+            Image.network(
+              imgUrl!,
+              width: 60,
+              height: 60,
+              fit: BoxFit.cover,
+            ),
+          SizedBox(width: 16.0,),
+          
+          Expanded(
+            child: Container(
+              color: Colors.transparent,
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -51,26 +61,30 @@ class Product extends StatelessWidget{
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    '\$$price',
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '₦$price',
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          color: isLow ? const Color.fromARGB(127, 255, 214, 79) : const Color.fromARGB(127, 100, 180, 246)
+                        ),
+                        child: Text(
+                          "$quantity in stock",
+                          style: TextStyle(
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8.0),
-              color: isLow ? const Color.fromARGB(127, 255, 214, 79) : const Color.fromARGB(127, 100, 180, 246)
-            ),
-            child: Text(
-              quantity,
-              style: TextStyle(
-              ),
             ),
           ),
-          
         ],
       ),
     );

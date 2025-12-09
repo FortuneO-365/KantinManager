@@ -52,7 +52,10 @@ namespace KantinManager.API.Controllers
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
-            return Ok("Product Added Successfully");
+            return Ok( new { 
+                message = "Product Added Successfully",
+                product
+            });
         }
 
         [HttpGet]
@@ -172,7 +175,7 @@ namespace KantinManager.API.Controllers
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
 
-            return Ok("Account deleted successfully");
+            return Ok("Product deleted successfully");
         }
 
         [HttpPost("upload-image/{id}")]
@@ -205,7 +208,10 @@ namespace KantinManager.API.Controllers
 
                 await _context.SaveChangesAsync();
 
-                return Ok(new { imageUrl });
+                return Ok(new { 
+                    message = "Image added successfully",
+                    imageUrl 
+                });
             }
             catch(Exception ex)
             {

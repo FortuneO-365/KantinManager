@@ -2,17 +2,137 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kantin_management/components/image_picker_field.dart';
 import 'package:kantin_management/components/product_text_field.dart';
+import 'package:kantin_management/models/product_model.dart';
+import 'package:kantin_management/services/api_services.dart';
 
-class EditProduct extends StatelessWidget{
-  final String initialValue;
-  EditProduct({
+class EditProduct extends StatefulWidget{
+  final ProductModel product;
+  
+  const EditProduct({
     super.key,
-    required this.initialValue,
+    required this.product,
   });
 
+  @override
+  State<EditProduct> createState() => _EditProductState();
+}
+
+class _EditProductState extends State<EditProduct> {
   final TextEditingController cProductName = TextEditingController();
+
   final TextEditingController cPrice = TextEditingController();
+
   final TextEditingController cQuantity = TextEditingController();
+
+  XFile? _image;
+
+  void showToast(BuildContext context,String message){
+    // Implement toast message display
+      OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50.0, // Position from the bottom
+        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry
+    Overlay.of(context).insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void validateInput(BuildContext context){
+    String productName = cProductName.text.trim();
+    String priceText = cPrice.text.trim();
+    String quantityText = cQuantity.text.trim();
+
+    if(productName.isEmpty){
+      // Show error for product name
+      showToast(context,"Product name cannot be empty");
+      return;
+    }
+
+    double? price = double.tryParse(priceText);
+    if(price == null || price < 0){
+      // Show error for price
+      showToast(context,"Enter a valid price");
+      return;
+    }
+
+    int? quantity = int.tryParse(quantityText);
+    if(quantity == null || quantity < 0){
+      // Show error for quantity
+      showToast(context,"Enter a valid quantity");
+      return;
+    }
+
+    // Input is valid, proceed with further actions
+  }
+
+  void editProduct(BuildContext context) async{
+    validateInput(context);
+    dynamic data = await ApiServices().editProduct(
+      productId: widget.product.id,
+      productName: cProductName.text.trim(), 
+      sellingPrice: double.parse(cPrice.text.trim()), 
+      quantity: int.parse(cQuantity.text.trim())
+    );
+
+    print(data);
+
+    if(data.toString() != "Product Updated Successfully"){
+      showToast(context, "Unable to edit product");
+      return;
+    }
+
+    if (_image == null){
+      Navigator.pop(context, true);
+    }
+
+    dynamic dataImage = await ApiServices().uploadProductImage(
+      productId:  widget.product.id,
+      imageFile: _image!
+    );
+
+    print(dataImage);
+
+    if (dataImage is Map && dataImage["message"] == "Image added successfully") {
+      Navigator.pop(context, true);
+      return;
+    }
+
+    showToast(context, "Unable to upload image");
+    Navigator.pop(context, true);    
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    cProductName.text = widget.product.name;
+    cPrice.text = widget.product.sellingPrice.toString();
+    cQuantity.text = widget.product.quantity.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +150,7 @@ class EditProduct extends StatelessWidget{
           )
         ),
         title: Text(
-          "Add Product",
+          "Edit Product",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -88,7 +208,6 @@ class EditProduct extends StatelessWidget{
                         hint: "e.g Wireless Mouse", 
                         keyboardType: TextInputType.text,
                         controller: cProductName,
-                        initialValue: initialValue,
                       ),
                       SizedBox(height: 16.0),
                       Column(
@@ -135,7 +254,6 @@ class EditProduct extends StatelessWidget{
                         hint: "0.00", 
                         keyboardType: TextInputType.number,
                         controller: cPrice,
-                        initialValue: initialValue,
                       ),
                       SizedBox(height: 16.0),
                       ProductTextField(
@@ -143,17 +261,48 @@ class EditProduct extends StatelessWidget{
                         hint: "0", 
                         keyboardType: TextInputType.number,
                         controller: cQuantity,
-                        initialValue: initialValue,
                       ),
                       SizedBox(height: 16.0),
+                      widget.product.photoUrl != null
+                      ?
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Previous Image:"),
+                            Container(
+                              color: Color.fromARGB(255, 250, 250, 250),
+                              padding: EdgeInsets.all(8.0),
+                              child: Image.network(
+                                widget.product.photoUrl!,
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            SizedBox(height: 16.0,),
+                            ImagePickerField(
+                              selectedImage: _image,
+                              onImageSelected: (XFile? image){
+                                setState(() {
+                                  _image = image;
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                      :
                       ImagePickerField(
-                        selectedImage: null,
-                        onImageSelected: (XFile? image){},
+                        selectedImage: _image,
+                        onImageSelected: (XFile? image){
+                          setState(() {
+                            _image = image;
+                          });
+                        },
                       ),
                       SizedBox(height: 30.0),
                       ElevatedButton(
                         onPressed: (){
-                          // addProduct(context);
+                          editProduct(context);
                         }, 
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(double.infinity, 50),
@@ -163,7 +312,7 @@ class EditProduct extends StatelessWidget{
                             borderRadius: BorderRadiusGeometry.circular(4.0)
                           )
                         ),
-                        child: Text("ADD TO INVENTORY",)
+                        child: Text("Edit Product",)
                       )
                     ],
                   ),

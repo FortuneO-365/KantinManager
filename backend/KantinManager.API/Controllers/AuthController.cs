@@ -128,6 +128,7 @@ namespace KantinManager.API.Controllers
             user.RefreshToken = refreshToken;
             user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(7);
 
+            await _context.SaveChangesAsync();
             return Ok(new { 
                 accesstoken = token,
                 refreshToken = refreshToken,

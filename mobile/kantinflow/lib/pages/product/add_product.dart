@@ -4,12 +4,21 @@ import 'package:kantin_management/components/image_picker_field.dart';
 import 'package:kantin_management/components/product_text_field.dart';
 import 'package:kantin_management/services/api_services.dart';
 
-class AddProduct extends StatelessWidget{
-  AddProduct({super.key});
+class AddProduct extends StatefulWidget{
+  const AddProduct({super.key});
 
+  @override
+  State<AddProduct> createState() => _AddProductState();
+}
+
+class _AddProductState extends State<AddProduct> {
   final TextEditingController cProductName = TextEditingController();
+
   final TextEditingController cPrice = TextEditingController();
+
   final TextEditingController cQuantity = TextEditingController();
+
+  XFile? _image;
 
   void showToast(BuildContext context,String message){
     // Implement toast message display
@@ -83,9 +92,30 @@ class AddProduct extends StatelessWidget{
       quantity: int.parse(cQuantity.text.trim())
     );
 
-    if(data.toString() == "Product Added Successfully"){
+    if(data is! Map || data["message"].toString() != "Product Added Successfully"){
+      showToast(context, "Unable to add product");
+      return;
+    }
+
+    if (_image == null){
       Navigator.pop(context, true);
     }
+
+    dynamic dataImage = await ApiServices().uploadProductImage(
+      productId:  int.parse(data["product"]["id"].toString()),
+      imageFile: _image!
+    );
+
+    print(dataImage);
+
+    if (dataImage is Map && dataImage["message"] == "Image added successfully") {
+      Navigator.pop(context, true);
+      return;
+    }
+
+    showToast(context, "Unable to upload image");
+    await ApiServices().removeProduct(productId: int.parse(data["product"]["id"].toString()));
+    Navigator.pop(context, true);    
   }
 
   @override
@@ -218,8 +248,12 @@ class AddProduct extends StatelessWidget{
                       ),
                       SizedBox(height: 16.0),
                       ImagePickerField(
-                        selectedImage: null,
-                        onImageSelected: (XFile? image){},
+                        selectedImage: _image,
+                        onImageSelected: (XFile? image){
+                          setState(() {
+                            _image = image;
+                          });
+                        },
                       ),
                       SizedBox(height: 30.0),
                       ElevatedButton(

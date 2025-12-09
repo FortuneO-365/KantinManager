@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kantin_management/components/product.dart';
 import 'package:kantin_management/models/product_model.dart';
 import 'package:kantin_management/pages/product/add_product.dart';
+import 'package:kantin_management/pages/product/edit_product.dart';
 import 'package:kantin_management/services/api_services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -20,6 +21,112 @@ class _ProductsState extends State<Products> {
   final Color mainColor = Color.fromARGB(255, 144, 202, 249);
 
   List<ProductModel> products = [];
+
+  void showToast(BuildContext context,String message){
+    // Implement toast message display
+      OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50.0, // Position from the bottom
+        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry
+    Overlay.of(context).insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void showMyPopUp(context, int id){
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Confirm Delete",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18.0,
+            ),
+          ),
+          content: Text(
+            "Are you sure you want to permanently delete this product.",
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: mainColor,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: Text("Cancel"),
+                  ),
+                ),
+                SizedBox(width: 4.0,),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      deleteProduct(id);
+                      setState(() {
+                        loadProducts();
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.red.shade300,
+                      shape: StadiumBorder(),
+                      side: BorderSide(
+                        width: 1,
+                        color: Colors.red.shade300
+                      )
+                    ),
+                    child: Text("Delete"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void deleteProduct(int id) async{
+    final data = await ApiServices().removeProduct(productId: id);
+    if (data.toString() == "Product deleted successfully"){
+      showToast(context, "Product deleted successfully");
+      Navigator.pop(context);
+    }
+    
+  }
 
   Future<List<ProductModel>> loadProducts() async{
     dynamic data = await ApiServices().getAllProducts();
@@ -204,7 +311,19 @@ class _ProductsState extends State<Products> {
                                 motion: ScrollMotion(), 
                                 children: [
                                   SlidableAction(
-                                    onPressed: (conext){
+                                    onPressed: (context) async{
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => EditProduct(
+                                          product: product,
+                                        )),
+                                      );
+
+                                      if (result == true) {
+                                        setState(() {
+                                          loadProducts(); // refresh list
+                                        });
+                                      }
                                     },
                                     backgroundColor: Colors.blue.shade100,
                                     icon: Icons.edit,
@@ -212,7 +331,8 @@ class _ProductsState extends State<Products> {
                                   ),
                                   SlidableAction(
                                     onPressed: (context) {
-                                      print("Delete Coca-Cola");
+                                      showMyPopUp(context, product.id);
+                                      
                                     },
                                     backgroundColor: Colors.red.shade100,
                                     icon: Icons.delete,
@@ -225,7 +345,8 @@ class _ProductsState extends State<Products> {
                                 title: product.name,
                                 quantity: "${product.quantity}",
                                 price: "${product.sellingPrice}",
-                                isLow: product.quantity < 5 ? true: false
+                                isLow: product.quantity < 5 ? true: false,
+                                imgUrl: product.photoUrl,
                               ),
                             ),
                           );

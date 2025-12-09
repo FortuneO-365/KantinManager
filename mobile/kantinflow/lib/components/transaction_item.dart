@@ -1,120 +1,131 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:kantin_management/models/sales_model.dart';
 
-class TransactionItem extends StatelessWidget{
+class TransactionItem extends StatefulWidget{
+
+  final SalesModel sale;
+
+  const TransactionItem({
+    super.key, 
+    required this.sale
+  });
+
+  @override
+  State<TransactionItem> createState() => _TransactionItemState();
+}
+
+class _TransactionItemState extends State<TransactionItem> {
 
   bool isOpen = false;
 
-  TransactionItem({super.key, required this.isOpen});
+  late String day;
+
+  String formatDateTime(String rawDate) {
+    final dateTime = DateTime.parse(rawDate);
+    return DateFormat('EEEE, d MMM yyyy • hh:mm a').format(dateTime);
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    day = formatDateTime(widget.sale.saleDate);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                flex: 4,
-                child: Padding(
-                  padding: EdgeInsetsGeometry.all(16.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Mechanical Keyboard"
-                      ),
-                      SizedBox(height: 4.0,),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.access_time,
-                            size: 14,
-                            color: Colors.blue.shade100
-                          ),
-                          SizedBox( width: 6.0,),
-                          Text(
-                            "0 minutes ago",
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.blue.shade100
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isOpen = !isOpen;
+        });
+      },
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Padding(
+                    padding: EdgeInsetsGeometry.all(16.0),
+                    child: Text(
+                      widget.sale.productName!
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text("2"),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text("\$12.00"),
-              ),
-              Expanded(
-                flex: 2,
-                child: Row(
-                  children: [
-                    Text(
-                      "\$24.00 ",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600
-                      ),
+                Expanded(
+                  flex: 1,
+                  child: Text(widget.sale.quantitySold.toString()),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0.0, 0.0, 8.0, 0.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "₦${widget.sale.totalPrice}",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600
+                          ),
+                        ),
+                        Transform.rotate(
+                          angle: isOpen ? 90 * 3.14 / 180 : 0,
+                          child: Icon(
+                            Icons.arrow_forward_ios_outlined,
+                            size: 14.0,
+                            color: Colors.grey,
+                          ),
+                        )
+                      ],
                     ),
-                    SizedBox(width: 4.0,),
-                    Transform.rotate(
-                      angle: isOpen ? 90 * 3.14 / 180 : 0,
-                      child: Icon(
-                        Icons.arrow_forward_ios_outlined,
-                        size: 14.0,
-                        color: Colors.grey,
-                      ),
-                    )
-                  ],
+                  )
+                ),
+              ],
+            ),
+            isOpen 
+            ? Container(
+              color: Color.fromARGB(255, 250, 250, 250),
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _columnItem("Transation ID", widget.sale.id.toString()),
+                      SizedBox(width: 60.0,),
+                      _columnItem("Product ID", "5"),
+                    ],
+                  ),
+                  
+                  SizedBox( height: 12.0,),
+                  
+                  _columnItem("Date & Time",day),
+      
+                  SizedBox(height: 4.0,),
+                  Divider(thickness: 1,),
+                  SizedBox(height: 4.0,),
+                  
+                  _summaryRow("Unit Price", "₦${widget.sale.unitPrice}"),
+                  _summaryRow("Quantity", "x ${widget.sale.quantitySold}"),
+                  _summaryRow("SubTotal", "₦${widget.sale.totalPrice}"),
+                  _summaryRow("Tax (0%)", "₦0.00"),
+                  
+                  _summaryRow("Total Amount", "₦${widget.sale.totalPrice}", bold: true),
+                    ],
+                  ),
                 )
-              ),
-            ],
-          ),
-          isOpen 
-          ? Container(
-            color: Color.fromARGB(255, 250, 250, 250),
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    _columnItem("Transation ID", "121212"),
-                    SizedBox(width: 60.0,),
-                    _columnItem("Product ID", "5"),
-                  ],
-                ),
-                
-                SizedBox( height: 12.0,),
-                
-                _columnItem("Date & Time","Mon, Dec 1, 2025, 11:08 AM"),
-
-                SizedBox(height: 4.0,),
-                Divider(thickness: 1,),
-                SizedBox(height: 4.0,),
-                
-                _summaryRow("Unit Price", "\$12.00"),
-                _summaryRow("Quantity", "x 2"),
-                _summaryRow("SubTotal", "\$24.00"),
-                _summaryRow("Tax (0%)", "\$0.00"),
-                
-                _summaryRow("Total Amount", "\$24.00", bold: true),
-                  ],
-                ),
-              )
-          : Container()
-          
-        ],
-
+            : Container()
+            
+          ],
+      
+        ),
       ),
     );
   }

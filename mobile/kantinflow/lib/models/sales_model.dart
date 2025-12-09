@@ -4,17 +4,19 @@ class SalesModel {
   final int quantitySold;
   final double unitPrice;
   final double totalPrice;
-  final DateTime saleDate;
+  final String saleDate;
   final int uploadedBy;
+  String? productName;
 
-  const SalesModel ({
+  SalesModel ({
     required this.id,
     required this.productId,
     required this.quantitySold,
     required this.unitPrice,
     required this.totalPrice,
     required this.saleDate,
-    required this.uploadedBy
+    required this.uploadedBy,
+    this.productName
   });
 
   factory SalesModel.fromJson(Map<String, dynamic> json) => SalesModel(

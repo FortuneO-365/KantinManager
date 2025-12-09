@@ -349,17 +349,16 @@ class Dashboard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-        
+                              stats.lowStock != null && stats.lowStock!.isNotEmpty
+                              ?
                               Container(
                                 margin: EdgeInsets.fromLTRB(16.0,8.0,16.0,8.0),
                                 padding: EdgeInsets.all(16.0),
-                                height: 300,
                                 decoration: BoxDecoration(
                                   color: Color.fromARGB(255, 245, 245, 245),
                                   borderRadius: BorderRadius.circular(8.0)
                                 ),
-                                child: (stats.lowStock != null && stats.lowStock!.isNotEmpty)
-                                  ?
+                                child:
                                   ListView.builder(
                                     shrinkWrap: true,
                                     physics: AlwaysScrollableScrollPhysics(),
@@ -368,41 +367,55 @@ class Dashboard extends StatelessWidget {
                                       final product = stats.lowStock![index];
                                       return Column(
                                         children: [
-                                          LowStockProduct(), 
+                                          LowStockProduct(
+                                            productName: product.name, 
+                                            price: product.sellingPrice, 
+                                            quantity: product.quantity,
+                                            imgUrl: product.photoUrl,
+                                          ), 
                                           SizedBox(height: 10.0,),
                                         ],
                                       );
                                     }, 
                                   )
-                                  :
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children:[
-                                      Container(
-                                        width:50,
-                                        height: 50,
-                                        padding: EdgeInsets.all(8.0),
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(29, 100, 180, 246),
-                                          borderRadius: BorderRadius.circular(8.0),
-                                        ),
-                                        child: Icon(
-                                          Icons.archive_outlined,
-                                          size: 26.0,
-                                        ),
-                                      ),
-                                      SizedBox(height: 16.0,),
-                                      Center(
-                                        child: Text(
-                                          "You don't have any low stock",
-                                          style: TextStyle(
-                                            color: Colors.grey
-                                          ),
-                                        ),
-                                      ),
-                                    ]
-                                  )
                               )
+                              :
+                              Container(
+                                margin: EdgeInsets.fromLTRB(16.0,8.0,16.0,8.0),
+                                padding: EdgeInsets.all(16.0),
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 245, 245, 245),
+                                  borderRadius: BorderRadius.circular(8.0)
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children:[
+                                    Container(
+                                      width:50,
+                                      height: 50,
+                                      padding: EdgeInsets.all(8.0),
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(29, 100, 180, 246),
+                                        borderRadius: BorderRadius.circular(8.0),
+                                      ),
+                                      child: Icon(
+                                        Icons.archive_outlined,
+                                        size: 26.0,
+                                      ),
+                                    ),
+                                    SizedBox(height: 16.0,),
+                                    Center(
+                                      child: Text(
+                                        "You don't have any low stock",
+                                        style: TextStyle(
+                                          color: Colors.grey
+                                        ),
+                                      ),
+                                    ),
+                                  ]
+                                ),
+                              ),
                             ],
                           ),
                       ],

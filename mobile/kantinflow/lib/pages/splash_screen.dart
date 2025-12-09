@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kantin_management/main.dart';
+import 'package:kantin_management/models/user.dart';
 import 'package:kantin_management/pages/auth/login.dart';
+import 'package:kantin_management/services/api_services.dart';
+import 'package:kantin_management/services/auth_initializer.dart';
 import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,14 +16,38 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+
+  Future<void> initialize() async {
+    bool loggedIn = await AuthInitializer.tryAutoLogin();
+
+    if (!mounted) return;
+
+    if (loggedIn) {
+      try {
+        User user = await ApiServices().getUser();
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => HomePage(user: user)),
+        );
+        
+      } catch (e) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => Login()),
+        );  
+      }
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => Login()),
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-
-    // End after 5 seconds
-    Future.delayed(Duration(seconds: 3), () {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
-    });
+    Future.delayed(Duration(seconds: 1), initialize);
   }
 
   @override

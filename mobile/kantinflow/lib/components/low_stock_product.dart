@@ -2,7 +2,18 @@ import 'package:flutter/material.dart';
 
 class LowStockProduct extends StatelessWidget{
 
-  const LowStockProduct({super.key});
+  final String productName;
+  final double price;
+  final int quantity;
+  final String? imgUrl;
+
+  const LowStockProduct({
+    super.key,
+    required this.productName,
+    required this.price,
+    required this.quantity,
+    this.imgUrl
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +34,8 @@ class LowStockProduct extends StatelessWidget{
         children: [
           Row(
             children: [
+              (imgUrl == null)
+              ?
               Container(
                 height: 50,
                 width: 50,
@@ -30,19 +43,26 @@ class LowStockProduct extends StatelessWidget{
                   borderRadius: BorderRadius.circular(8.0),
                   color: Colors.grey,
                 ),
+              )
+              :
+              Image.network(
+                imgUrl!,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
               ),
               SizedBox(width: 8.0,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Coca-Cola",
+                    productName,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16.0
                     ),
                   ),
-                  Text("\$49.00")
+                  Text("₦$price")
                 ],
               )
             ],
@@ -62,7 +82,7 @@ class LowStockProduct extends StatelessWidget{
                   size: 16.0,
                 ),
                 SizedBox(width: 4.0,),
-                Text("2 left")
+                Text("$quantity left")
               ],
             ),
           )

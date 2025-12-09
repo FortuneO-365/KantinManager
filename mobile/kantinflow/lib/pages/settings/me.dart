@@ -3,6 +3,7 @@ import 'package:kantin_management/pages/auth/login.dart';
 import 'package:kantin_management/pages/sales/sales_history.dart';
 import 'package:kantin_management/pages/settings/profile.dart';
 import 'package:kantin_management/pages/settings/security.dart';
+import 'package:kantin_management/services/api_services.dart';
 
 class Settings extends StatelessWidget{
 
@@ -16,6 +17,53 @@ class Settings extends StatelessWidget{
     required this.lastName,
     required this.email,
   });
+
+    void showToast(BuildContext context,String message){
+    // Implement toast message display
+      OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50.0, // Position from the bottom
+        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry
+    Overlay.of(context).insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void signOut(BuildContext context) async{
+    final data = await ApiServices().logout();
+    print(data.toString());
+
+    if(data.toString() == "Logged out successfully"){
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
+    }else{
+      showToast(context, "Error signing out");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -289,7 +337,7 @@ class Settings extends StatelessWidget{
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
+                          signOut(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[300],

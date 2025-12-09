@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/components/counter_input.dart';
-import 'package:kantin_management/components/product.dart';
 import 'package:kantin_management/pages/sales/sales_history.dart';
 import 'package:kantin_management/models/product_model.dart';
 import 'package:kantin_management/services/api_services.dart';
@@ -15,12 +14,15 @@ class Sales extends StatefulWidget {
 class SalesState extends State<Sales> {
 
   bool isSelected = false;
-  int? selectedProductId;
   List<ProductModel> products = [];
+  int selectedProductId = -1;
   int quantity = 1;
   ProductModel? product;
 
   void increaseQuantity(){
+    if (quantity >= product!.quantity){
+      return ;
+    }
     setState(() {
       quantity++;
     });
@@ -46,36 +48,98 @@ class SalesState extends State<Sales> {
     });
   }
 
+  void showToast(BuildContext context,String message){
+    // Implement toast message display
+      OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50.0, // Position from the bottom
+        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry
+    Overlay.of(context).insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void validateInput(){
+    if(quantity < 1){
+      showToast(context, "Quantity is 0");
+      return;
+    }
+
+    if(selectedProductId <= 0){
+      showToast(context, "No product selected");
+      return; 
+    }
+
+    print(quantity);
+    print(selectedProductId);
+  } 
+
+  void recordSale() async{
+    validateInput();
+
+    final data = await ApiServices().recordSale(
+      productId: selectedProductId,
+      quantitySold: quantity
+    );
+
+    print(data);
+
+    if(data["message"] == "Sale recorded successfully"){
+      showToast(context, "Sale recorded successfully");
+    }else{
+      showToast(context, "Failed to record sale");
+    }
+  }
+
   Future<List<ProductModel>> loadProducts() async{
     dynamic data = await ApiServices().getAllProducts();
-      products = (data as List)
-        .map((item) => ProductModel.fromJson(item))
-        .toList();
+    setState(() {
+        products = (data as List)
+          .map((item) => ProductModel.fromJson(item))
+          .toList();
+
+        if (products.isNotEmpty && selectedProductId == -1) {
+          selectedProductId = products.first.id;
+        }
+
+        selectProduct(selectedProductId);
+    });
     return products; 
   }
 
   @override
+  void initState(){
+    super.initState();
+    loadProducts();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: loadProducts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(child: Text("Error: ${snapshot.error}")),
-          );
-        }
-
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: Text("No data found")),
-          );
-        }
         return Scaffold(
           backgroundColor: Color.fromARGB(255, 245, 245, 245),
           body: Column(
@@ -164,7 +228,7 @@ class SalesState extends State<Sales> {
                                   ),
                                   SizedBox(height: 8.0),
                                   DropdownButtonFormField(
-                                    initialValue: selectedProductId,
+                                    initialValue: selectedProductId == -1 ? null : selectedProductId,
                                     decoration: InputDecoration(
                                       focusedBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
@@ -232,6 +296,15 @@ class SalesState extends State<Sales> {
                             child: isSelected ? 
                             Row(
                               children: [
+                                product!.photoUrl != null
+                                ?
+                                Image.network(
+                                  product!.photoUrl!,
+                                  height: 40,
+                                  width: 40,
+                                  fit: BoxFit.cover,
+                                )
+                                :
                                 Container(
                                   height: 40.0,
                                   width: 40.0,
@@ -364,7 +437,9 @@ class SalesState extends State<Sales> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               ElevatedButton(
-                                onPressed: (){},
+                                onPressed: (){
+                                  recordSale();
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blue.shade300,
                                   foregroundColor: Colors.white,
@@ -388,7 +463,5 @@ class SalesState extends State<Sales> {
             ],
           ),
         );
-      }
-    );
   }
 }
