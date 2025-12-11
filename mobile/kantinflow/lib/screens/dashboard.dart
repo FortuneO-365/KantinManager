@@ -1,23 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/low_stock_product.dart';
+import 'package:kantin_management/models/user.dart';
+import 'package:kantin_management/screens/notification/notification.dart';
+import 'package:kantin_management/widgets/low_stock_product.dart';
 import 'package:kantin_management/models/dashboard_stats.dart';
 import 'package:kantin_management/services/api_services.dart';
 
-class Dashboard extends StatelessWidget {
-  final String name;
+class Dashboard extends StatefulWidget {
 
-  const Dashboard({super.key, required this.name});
+  Dashboard({super.key});
 
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
   Future<DashboardStats> loadTotalSales() async {
     dynamic data = await ApiServices().getDashboardSummary();
     DashboardStats stats = DashboardStats.fromJson(data);
     return stats;
   }
 
+  Future<User> getUser() async {
+    User user = await ApiServices().getUser();
+    return user;
+  }
+
+  Future<dynamic> getProfile() async {
+    final results = await Future.wait([
+      loadTotalSales(),
+      getUser(),
+    ]);
+    return results;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: loadTotalSales(),
+      future: getProfile(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
         return const Scaffold(
@@ -37,7 +56,10 @@ class Dashboard extends StatelessWidget {
         );
       }
 
-      final stats = snapshot.data!;
+      final results = snapshot.data as List<dynamic>;
+      final DashboardStats stats = results[0];
+      final User user = results[1];
+
         return Scaffold(
           body: Stack(
             children: [
@@ -65,14 +87,36 @@ class Dashboard extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              "assets/images/profile.png",
-                              width: 40,
-                              height: 40,
-                            ),
+                            user.profileImageUrl != null
+                        ?
+                        Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: NetworkImage(
+                                user.profileImageUrl!,
+                              ),
+                              fit: BoxFit.cover,
+                            )
+                          ),
+                          child: Image.network(
+                            user.profileImageUrl!,
+                            fit: BoxFit.cover,
+                            height: double.infinity,
+                            width: double.infinity,
+                          ),
+                        )
+                        :
+                        Image.asset(
+                          "assets/images/profile.png",
+                          width: 40,
+                          height: 40,
+                        ),
                             const SizedBox(width: 12.0),
                             Text(
-                              'Hello, $name!', 
+                              'Hello, ${user.firstName}', 
                               style: const TextStyle(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
@@ -92,6 +136,7 @@ class Dashboard extends StatelessWidget {
                               ),
                               onPressed: () {
                                 // Notification action
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationPage()));
                               },
                             ),
                           ],
@@ -226,15 +271,10 @@ class Dashboard extends StatelessWidget {
                                                   fontSize: 16.0
                                                 ),
                                               ),
-                                              Text("0 transactions"),
+                                              Text("${stats.todayOrders!.length}  transactions"),
                                             ],
                                           ),
                                         ],
-                                      ),
-                    
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 14.0,
                                       )
                                     ],
                                   ),
@@ -272,16 +312,10 @@ class Dashboard extends StatelessWidget {
                                                   fontSize: 16.0
                                                 ),
                                               ),
-                                              Text("0 transactions"),
                                             ],
                                           ),
                                         ],
                                       ),
-                    
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 14.0,
-                                      )
                                     ],
                                   ),
                                 ),
@@ -322,11 +356,6 @@ class Dashboard extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                    
-                                      Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 14.0,
-                                      )
                                     ],
                                   ),
                                 ),

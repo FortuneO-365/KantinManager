@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/text_form_field.dart';
+import 'package:kantin_management/widgets/text_form_field.dart';
 import 'package:kantin_management/main.dart';
 import 'package:kantin_management/models/user.dart';
-import 'package:kantin_management/pages/auth/email_verification.dart';
-import 'package:kantin_management/pages/auth/forgot_password.dart';
-import 'package:kantin_management/pages/auth/register.dart';
+import 'package:kantin_management/screens/auth/email_verification.dart';
+import 'package:kantin_management/screens/auth/forgot_password.dart';
+import 'package:kantin_management/screens/auth/register.dart';
 import 'package:kantin_management/services/api_services.dart';
 
 class Login extends StatelessWidget {

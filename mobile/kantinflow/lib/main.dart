@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/models/user.dart';
-import 'package:kantin_management/pages/dashboard.dart';
-import 'package:kantin_management/pages/splash_screen.dart';
-import 'package:kantin_management/pages/product/products.dart';
-import 'package:kantin_management/pages/sales/sales.dart';
+import 'package:kantin_management/screens/dashboard.dart';
+import 'package:kantin_management/screens/splash_screen.dart';
+import 'package:kantin_management/screens/product/products.dart';
+import 'package:kantin_management/screens/sales/sales.dart';
 import 'package:kantin_management/services/api_client.dart';
-import 'package:kantin_management/pages/settings/me.dart';
+import 'package:kantin_management/screens/settings/me.dart';
 
 void main() {
   ApiClient.setupInterceptors();
@@ -43,15 +43,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     final List<Widget> _pages = [
-      Dashboard(
-        name: widget.user.firstName
-      ),
+      Dashboard(),
       Sales(),
       Products(),
       Settings(
-        firstName: widget.user.firstName,
-        lastName: widget.user.lastName,
-        email: widget.user.email,
+        user: widget.user,
       ),
     ];
 

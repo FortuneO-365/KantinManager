@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:kantin_management/pages/auth/login.dart';
+import 'package:kantin_management/screens/auth/login.dart';
 import 'package:kantin_management/services/api_services.dart';
 import 'package:pinput/pinput.dart';
 
@@ -24,6 +24,23 @@ class _EmailVerificationState extends State<EmailVerification>{
   int remainingSeconds = 60 * 2;
   final Color mainColor = Color.fromARGB(255, 144, 202, 249);
 
+  void showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: CircularProgressIndicator(
+          color: mainColor,
+          backgroundColor: const Color.fromARGB(50, 255, 255, 255),
+        ),
+      ),
+    );
+  }
+
+  void hideLoading(BuildContext context) {
+    Navigator.pop(context);
+  }
+
   void startTimer() {
     Timer.periodic(Duration(seconds: 1), (timer) {
       if (remainingSeconds == 0) {
@@ -36,6 +53,13 @@ class _EmailVerificationState extends State<EmailVerification>{
           remainingSeconds--;
         });
       }
+    });
+  }
+
+  void stopTimer(){
+    setState(() {
+      remainingSeconds = 0;
+      canResend = true;
     });
   }
 
@@ -107,11 +131,12 @@ class _EmailVerificationState extends State<EmailVerification>{
   }
 
   void confirmEmail(String pin) async{
+    showLoading(context);
     final data = await ApiServices().verifyUser(
       email: widget.emailAddress, 
       verificationCode: pin
     );
-
+    hideLoading(context);
     if(data.toString().toLowerCase().contains("user not found")){
       showToast(context, "User not found");
       return ;
@@ -122,13 +147,12 @@ class _EmailVerificationState extends State<EmailVerification>{
       return ;
     }
 
-    Future.delayed(Duration(seconds: 2), () {
-      showToast(context, "Email verified successfully");
-      Navigator.pushReplacement(
-        context, 
-        MaterialPageRoute(builder: (context) => Login())
-      );
-    });
+    showToast(context, "Email verified successfully");
+    stopTimer();
+    Navigator.pushReplacement(
+      context, 
+      MaterialPageRoute(builder: (context) => Login())
+    );
   }
 
   @override

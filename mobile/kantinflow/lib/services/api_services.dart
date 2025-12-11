@@ -171,24 +171,64 @@ class ApiServices {
     return User.fromJson(response.data);
   }
 
-  Future<Response> updateUser({String? firstName, String? lastName, String? email}) {
-    return ApiClient.dio.patch(
-      "/user/me",
-      data: {
-        "firstName": firstName,
-        "lastName": lastName,
-        "email": email,
-      },
-    );
+  Future<dynamic> updateUser({
+    String? firstName, 
+    String? lastName, 
+    String? address,
+    String? gender
+  }) async{
+    try {
+      final response = await ApiClient.dio.patch(
+        "/User/me",
+        data: {
+          "firstName": firstName,
+          "lastName": lastName,
+          "gender": gender,
+          "address": address
+        },
+        options: Options(
+          validateStatus: (status) {
+            return status != null && status <= 500; 
+          },
+        ),
+      );  
+
+      return response.data;
+    } catch (e) {
+      return e.toString();
+    }
   }
 
-  Future<String> uploadProfileImage(String filePath) async {
-    FormData formData = FormData.fromMap({
-      "file": await MultipartFile.fromFile(filePath),
-    });
+  Future<dynamic> uploadProfileImage({
+    required XFile imageFile
+  }) async {
 
-    final res = await ApiClient.dio.post("/user/upload-profile-image", data: formData);
-    return res.data["imageUrl"];
+    try{
+
+      final file = await MultipartFile.fromFile(
+        imageFile.path,
+        filename: imageFile.name,
+      );
+
+        final formData = FormData.fromMap({
+          "file": file,
+        });
+
+      final response = await ApiClient.dio.post(
+        "/user/upload-profile-image", 
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+          validateStatus: (status) {
+            return status != null && status <= 500; 
+          },
+        )
+      );
+      return response.data;
+    }catch(e){
+      return e.toString();
+    }
+
   }
 
   Future<Response> changePassword(String oldPassword, String newPassword) {

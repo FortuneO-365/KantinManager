@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/text_form_field.dart';
-import 'package:kantin_management/pages/auth/email_verification.dart';
-import 'package:kantin_management/pages/auth/login.dart';
+import 'package:kantin_management/widgets/text_form_field.dart';
+import 'package:kantin_management/screens/auth/email_verification.dart';
+import 'package:kantin_management/screens/auth/login.dart';
 import 'package:kantin_management/services/api_services.dart';
 
 class Register extends StatelessWidget{
@@ -106,13 +106,14 @@ class Register extends StatelessWidget{
   void registerUser(BuildContext context) async {
 
     ValidateUserDetails(context);
+    showLoading(context);
     final data = await ApiServices().registerUser(
       firstName: cFirstName.text,
       lastName: cLastName.text,
       email: cEmail.text,
       password: cPassword.text,
     );
-
+    hideLoading(context);
     if(data.toString() == "User Registered Successfully. Check your mail for a verification code"){
 
       Navigator.pushReplacement(

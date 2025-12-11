@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kantin_management/components/image_picker_field.dart';
-import 'package:kantin_management/components/product_text_field.dart';
-import 'package:kantin_management/models/product_model.dart';
+import 'package:kantin_management/widgets/image_picker_field.dart';
+import 'package:kantin_management/widgets/product_text_field.dart';
 import 'package:kantin_management/services/api_services.dart';
 
-class EditProduct extends StatefulWidget{
-  final ProductModel product;
-  
-  const EditProduct({
-    super.key,
-    required this.product,
-  });
+class AddProduct extends StatefulWidget{
+  const AddProduct({super.key});
 
   @override
-  State<EditProduct> createState() => _EditProductState();
+  State<AddProduct> createState() => _AddProductState();
 }
 
-class _EditProductState extends State<EditProduct> {
+class _AddProductState extends State<AddProduct> {
   final TextEditingController cProductName = TextEditingController();
 
   final TextEditingController cPrice = TextEditingController();
@@ -25,6 +19,24 @@ class _EditProductState extends State<EditProduct> {
   final TextEditingController cQuantity = TextEditingController();
 
   XFile? _image;
+
+  void showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: CircularProgressIndicator(
+          color: Colors.blue.shade300,
+          backgroundColor: const Color.fromARGB(50, 255, 255, 255),
+        ),
+      ),
+    );
+  }
+
+  void hideLoading(BuildContext context) {
+    Navigator.pop(context);
+  }
+
 
   void showToast(BuildContext context,String message){
     // Implement toast message display
@@ -90,32 +102,33 @@ class _EditProductState extends State<EditProduct> {
     // Input is valid, proceed with further actions
   }
 
-  void editProduct(BuildContext context) async{
+  void addProduct(BuildContext context) async{
     validateInput(context);
-    dynamic data = await ApiServices().editProduct(
-      productId: widget.product.id,
+    showLoading(context);
+    dynamic data = await ApiServices().addNewProduct(
       productName: cProductName.text.trim(), 
       sellingPrice: double.parse(cPrice.text.trim()), 
       quantity: int.parse(cQuantity.text.trim())
     );
 
-    print(data);
-
-    if(data.toString() != "Product Updated Successfully"){
-      showToast(context, "Unable to edit product");
+    if(data is! Map || data["message"].toString() != "Product Added Successfully"){
+      showToast(context, "Unable to add product");
       return;
     }
 
     if (_image == null){
+      hideLoading(context);
       Navigator.pop(context, true);
+      return;
     }
 
+
     dynamic dataImage = await ApiServices().uploadProductImage(
-      productId:  widget.product.id,
+      productId:  int.parse(data["product"]["id"].toString()),
       imageFile: _image!
     );
-
-    print(dataImage);
+    hideLoading(context);
+    
 
     if (dataImage is Map && dataImage["message"] == "Image added successfully") {
       Navigator.pop(context, true);
@@ -123,15 +136,8 @@ class _EditProductState extends State<EditProduct> {
     }
 
     showToast(context, "Unable to upload image");
+    await ApiServices().removeProduct(productId: int.parse(data["product"]["id"].toString()));
     Navigator.pop(context, true);    
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    cProductName.text = widget.product.name;
-    cPrice.text = widget.product.sellingPrice.toString();
-    cQuantity.text = widget.product.quantity.toString();
   }
 
   @override
@@ -150,7 +156,7 @@ class _EditProductState extends State<EditProduct> {
           )
         ),
         title: Text(
-          "Edit Product",
+          "Add Product",
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -253,44 +259,16 @@ class _EditProductState extends State<EditProduct> {
                         title: "Price", 
                         hint: "0.00", 
                         keyboardType: TextInputType.number,
-                        controller: cPrice,
+                        controller: cPrice
                       ),
                       SizedBox(height: 16.0),
                       ProductTextField(
                         title: "Quantity", 
                         hint: "0", 
                         keyboardType: TextInputType.number,
-                        controller: cQuantity,
+                        controller: cQuantity
                       ),
                       SizedBox(height: 16.0),
-                      widget.product.photoUrl != null
-                      ?
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Previous Image:"),
-                            Container(
-                              color: Color.fromARGB(255, 250, 250, 250),
-                              padding: EdgeInsets.all(8.0),
-                              child: Image.network(
-                                widget.product.photoUrl!,
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            SizedBox(height: 16.0,),
-                            ImagePickerField(
-                              selectedImage: _image,
-                              onImageSelected: (XFile? image){
-                                setState(() {
-                                  _image = image;
-                                });
-                              },
-                            ),
-                          ],
-                        )
-                      :
                       ImagePickerField(
                         selectedImage: _image,
                         onImageSelected: (XFile? image){
@@ -302,7 +280,7 @@ class _EditProductState extends State<EditProduct> {
                       SizedBox(height: 30.0),
                       ElevatedButton(
                         onPressed: (){
-                          editProduct(context);
+                          addProduct(context);
                         }, 
                         style: ElevatedButton.styleFrom(
                           minimumSize: Size(double.infinity, 50),
@@ -312,7 +290,7 @@ class _EditProductState extends State<EditProduct> {
                             borderRadius: BorderRadiusGeometry.circular(4.0)
                           )
                         ),
-                        child: Text("Edit Product",)
+                        child: Text("ADD TO INVENTORY",)
                       )
                     ],
                   ),

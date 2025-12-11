@@ -136,86 +136,95 @@ public class EmailService
         var message = new MailMessage();
         message.From = new MailAddress(fromEmail!);
         message.To.Add(to);
-        message.Subject = "Your Verification Code";
+        message.Subject = "Your Reset Password Code";
         message.Body = @$"<!DOCTYPE html>
         <html>
     <head>
         <style>
-            *{{margin: 0;
+            *{{
+                margin: 0;
                 padding: 0;
                 box-sizing: border-box;
                 font-family: Arial, Helvetica, sans-serif;
             }}
-            html{{display: flex;
+            html{{
+                display: flex;
                 justify-content: center;
                 align-items: center;
             }}
-            body{{box - shadow: 0px 0px 3px gray ;
+            body{{
+                box-shadow: 0px 0px 3px gray ;
                 width: 80dvh;
                 max-width: 500px;
                 height: fit-content;
                 color: #333
             }}
-            table{{border - collapse: collapse;
+            table{{
+                border-collapse: collapse;
                 margin: 10px 20px;
             }}
-            th{{text - align: left;
+            th{{
+                text-align: left;
                 padding-bottom: 30px;
             }}
-            h1{{margin - bottom: 10px;
+            h1{{
+                margin-bottom: 10px;
             }}
-            p{{padding - bottom: 10px;
+            p{{
+                padding-bottom: 10px;
             }}
-            h2{{padding: 30px 0;
+            h2{{
+                padding: 30px 0;
                 letter-spacing: 3px; 
                 font-size: 28px; 
                 margin: 10px 0;
             }}
-            td:last-child{{padding - top: 30px;
+            td:last-child{{
+                padding-top: 30px;
             }}
 
         </style>
     </head>
     <body>
         <table cellpadding=""0"" cellspacing=""0"">
-            < tr >
-                < th >
-                < h1 > KantinFlow </ h1 >
-                </ th >
-            </ tr >
+            <tr>
+                <th>
+                <h1> KantinFlow </h1>
+                </th>
+            </tr>
 
-            < tr >          
-                < td >
-                < p >
+            <tr>          
+                <td>
+                <p>
                     You have initiated the process to reset your password.  
                     To complete your password reset, please use the reset password code below:
-                  </ p >
-                  < p >< strong > Your reset password code:</ strong ></ p >
-                </ td >
-              </ tr >
+                  </p>
+                  <p><strong> Your reset password code:</strong></p>
+                </td>
+              </tr>
 
-              < tr >
-                < td >
-                  < h2 >
-                    { code }
-                  </ h2 >
-                </ td >
-              </ tr >
+              <tr>
+                <td>
+                  <h2>
+                    {code}
+                  </h2>
+                </td>
+              </tr>
 
-              < tr >
-                < td >
-                  < p >
+              <tr>
+                <td>
+                  <p>
                     If you did not initiate this request, please ignore this message.
-                  </ p >
-                  < p >
-                    Best Regards,< br >
-                    < strong > KantinFlow Team </ strong >
-                  </ p >
-                </ td >
-              </ tr >
-            </ table >
-          </ body >
-    </ html >";
+                  </p>
+                  <p>
+                    Best Regards,<br>
+                    <strong> KantinFlow Team </strong>
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </body>
+    </html>";
         message.IsBodyHtml = true;
 
         using var client = new SmtpClient(host, port);

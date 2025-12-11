@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:kantin_management/models/user.dart';
+import 'package:kantin_management/screens/settings/edit_profile_image.dart';
+import 'package:kantin_management/services/api_services.dart';
 
 class Profile extends StatefulWidget{
 
-  final String firstName;
-  final String lastName;
-  final String email;
+  User user;
 
-  const Profile({
+  Profile({
     super.key, 
-    required this.firstName,
-    required this.lastName,
-    required this.email,
+    required this.user,
   });
 
   @override
@@ -19,12 +18,115 @@ class Profile extends StatefulWidget{
 
 class _ProfileState extends State<Profile> {
 
+  final Color mainColor = Color.fromARGB(255, 144, 202, 249);
   final TextEditingController _controller = TextEditingController();
+
+  // XFile? _image;
 
   String hideEmail(String email){
     String firstThreeLetters = email.substring(0,3);
     String lastThreeLetters = email.split('@')[1];
     return "$firstThreeLetters****$lastThreeLetters";
+  }
+
+  void showLoading(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: CircularProgressIndicator(
+          color: mainColor,
+          backgroundColor: const Color.fromARGB(50, 255, 255, 255),
+        ),
+      ),
+    );
+  }
+
+  void hideLoading(BuildContext context) {
+    Navigator.pop(context);
+  }
+
+  void showToast(BuildContext context,String message){
+    // Implement toast message display
+      OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 50.0, // Position from the bottom
+        left: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        right: MediaQuery.of(context).size.width * 0.1, // Center horizontally
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // Insert the overlay entry
+    Overlay.of(context).insert(overlayEntry);
+
+    // Remove the overlay entry after a delay
+    Future.delayed(Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void getUser() async {
+    User newUser = await ApiServices().getUser();
+    setState(() {
+      widget.user = newUser;
+    });
+  }
+
+  void editUser(String field, String fieldData) async {
+    showLoading(context);
+
+    Future<dynamic> Function() updateFunction;
+
+    switch (field) {
+      case "Firstname":
+        updateFunction = () => ApiServices().updateUser(firstName: fieldData);
+        break;
+      case "Lastname":
+        updateFunction = () => ApiServices().updateUser(lastName: fieldData);
+        break;
+      case "Gender":
+        updateFunction = () => ApiServices().updateUser(gender: fieldData);
+        break;
+      case "Address":
+        updateFunction = () => ApiServices().updateUser(address: fieldData);
+        break;
+      default:
+        hideLoading(context);
+        showToast(context, "Error: Unknown field '$field'");
+        return;
+    }
+
+    try {
+      final data = await updateFunction();
+
+      if (data["message"].toString() == "Profile updated successfully") {
+        getUser();
+        hideLoading(context);
+        Navigator.pop(context); 
+      } else {
+        showToast(context, "Unable to update $field: ${data['message']}");
+      }
+    } catch (e) {
+      hideLoading(context);
+      showToast(context, "An error occurred while updating $field.");
+    }
   }
 
   void _showPicker(BuildContext context, String title, TextEditingController controller) {
@@ -114,7 +216,9 @@ class _ProfileState extends State<Profile> {
                     SizedBox(width: 8.0,),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: (){}, 
+                        onPressed: (){
+                          editUser(title, controller.text.trim());
+                        }, 
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade300,
                           foregroundColor: Colors.white,
@@ -135,9 +239,130 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void _showImagePicker(BuildContext context){
-    
+  void _showGenderPicker(BuildContext context, String title, TextEditingController controller) {
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: SafeArea(
+            child: Wrap(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text(
+                      "Edit Gender",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.0
+                      ),
+                    ),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Gender",
+                      style: TextStyle(
+                        fontSize: 14.0
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    DropdownButtonFormField(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade300
+                          )
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade300
+                          )
+                        ),
+                      ),
+                      items: ["Male", "Female", "Others",]
+                          .map((item) => DropdownMenuItem(
+                                value: item,
+                                child: Text(item),
+                              )) 
+                          .toList(),
+                      initialValue: "Male",
+                      onChanged: (item){
+                        if(item != null){
+                          setState(() {
+                            controller.text = item;
+                          });
+                        }else{
+                          setState(() {
+                            controller.text = 'Male';
+                          });
+                          print(controller.text);
+                        }
+                      }
+                    ),
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.all(8.0),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: (){
+                          Navigator.pop(context);
+                        }, 
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.blue.shade300,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(8.0)
+                          )
+                        ),
+                        child: Text("Cancel")
+                      ),
+                    ),
+                    SizedBox(width: 8.0,),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: (){
+                          editUser(title, controller.text.trim());
+                        }, 
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue.shade300,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(8.0)
+                          )
+                        ),
+                        child: Text("Edit")
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUser();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,13 +406,35 @@ class _ProfileState extends State<Profile> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            widget.user.profileImageUrl != null
+                            ?
+                            Container(
+                              height: 130,
+                              width: 130,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: NetworkImage(
+                                    widget.user.profileImageUrl!,
+                                  ),
+                                  fit: BoxFit.cover,
+                                )
+                              ),
+                              child: Image.network(
+                                widget.user.profileImageUrl!,
+                                fit: BoxFit.cover,
+                                height: double.infinity,
+                                width: double.infinity,
+                              ),
+                            )
+                            :
                             Image.asset(
                               "assets/images/profile.png",
                               width: 130,
                               height: 130,
                             ),
                             Text(
-                              widget.firstName,
+                              widget.user.firstName,
                               style: TextStyle(
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
@@ -203,7 +450,16 @@ class _ProfileState extends State<Profile> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             TextButton(
-                              onPressed: () {}, 
+                              onPressed: () async{
+                                final result = await Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(builder: (context) => EditProfileImage())
+                                );
+
+                                if (result == true) {
+                                  getUser();
+                                }
+                              }, 
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.blue.shade300,
                                 shape: RoundedRectangleBorder(
@@ -232,7 +488,7 @@ class _ProfileState extends State<Profile> {
                       TextButton(
                         onPressed: (){
                           setState(() {
-                            _controller.text = widget.firstName;
+                            _controller.text = widget.user.firstName;
                           });
                           _showPicker(context, "Firstname", _controller);
                         }, 
@@ -252,7 +508,7 @@ class _ProfileState extends State<Profile> {
                             Row(
                               children: [
                                 Text(
-                                  widget.firstName,
+                                  widget.user.firstName,
                                 ),
                                 SizedBox(width: 4.0,),
                                 Icon(
@@ -268,7 +524,7 @@ class _ProfileState extends State<Profile> {
                       TextButton(
                         onPressed: (){
                           setState(() {
-                            _controller.text = widget.lastName;
+                            _controller.text = widget.user.lastName;
                           });
                           _showPicker(context, "Lastname", _controller);
                         }, 
@@ -288,7 +544,7 @@ class _ProfileState extends State<Profile> {
                             Row(
                               children: [
                                 Text(
-                                  widget.lastName,
+                                  widget.user.lastName,
                                 ),
                                 SizedBox(width: 4.0,),
                                 Icon(
@@ -319,7 +575,7 @@ class _ProfileState extends State<Profile> {
                             Row(
                               children: [
                                 Text(
-                                  hideEmail(widget.email),
+                                  hideEmail(widget.user.email),
                                 ),
                               ],
                             )
@@ -329,7 +585,11 @@ class _ProfileState extends State<Profile> {
                       SizedBox(height: 10.0,),
                       TextButton(
                         onPressed: (){
-                          
+                          widget.user.gender != null 
+                          ?
+                            (){}
+                          :
+                            _showGenderPicker(context, "Gender", _controller);
                         }, 
                         style: TextButton.styleFrom(
                           overlayColor: Colors.white,
@@ -347,12 +607,15 @@ class _ProfileState extends State<Profile> {
                             Row(
                               children: [
                                 Text(
-                                  "",
+                                  widget.user.gender != null ? widget.user.gender! : "",
                                   style: TextStyle(
                                     
                                   ),
                                 ),
-                                SizedBox(width: 4.0,),
+                                widget.user.gender != null 
+                                ?
+                                  Container()
+                                :
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   size: 12.0,
@@ -364,7 +627,12 @@ class _ProfileState extends State<Profile> {
                       ),
                       SizedBox(height: 10.0,),
                       TextButton(
-                        onPressed: (){}, 
+                        onPressed: (){
+                            setState(() {
+                            _controller.text = widget.user.address != null ? widget.user.address! : "";
+                          });
+                          _showPicker(context, "Address", _controller);
+                        }, 
                         style: TextButton.styleFrom(
                           overlayColor: Colors.white,
                           foregroundColor: Colors.blue.shade300
@@ -373,7 +641,7 @@ class _ProfileState extends State<Profile> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             const Text(
-                              "Number",
+                              "Address",
                               style: TextStyle(
                                 color: Color.fromARGB(255, 70, 70, 70),
                               ),
@@ -381,7 +649,7 @@ class _ProfileState extends State<Profile> {
                             Row(
                               children: [
                                 Text(
-                                  "",
+                                  widget.user.address != null ? widget.user.address! : "",
                                   style: TextStyle(
                                     
                                   ),

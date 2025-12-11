@@ -4,6 +4,8 @@ class User {
   final String lastName;
   final String email;
   final String? profileImageUrl;
+  final String? address;
+  final String? gender;
   final bool? emailVerified;
 
   const User({
@@ -12,6 +14,8 @@ class User {
     required this.lastName,
     required this.email,
     this.profileImageUrl,
+    this.address,
+    this.gender,
     this.emailVerified,
   });
 
@@ -21,6 +25,8 @@ class User {
     lastName: json['lastName'], 
     email: json['email'],
     profileImageUrl: json['profileImageUrl'],
+    gender: json['gender'],
+    address: json['address'],
     emailVerified: json["emailVerified"]
   );
 
@@ -30,6 +36,8 @@ class User {
     "LastName": lastName,
     "Email": email,
     "ProfileImageUrl": profileImageUrl,
+    "Gender": gender,
+    "Address": address,
     "EmailVerified": emailVerified
   };
 }

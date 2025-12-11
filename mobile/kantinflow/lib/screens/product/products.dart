@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/product.dart';
+import 'package:kantin_management/widgets/product.dart';
 import 'package:kantin_management/models/product_model.dart';
-import 'package:kantin_management/pages/product/add_product.dart';
-import 'package:kantin_management/pages/product/edit_product.dart';
+import 'package:kantin_management/screens/product/add_product.dart';
+import 'package:kantin_management/screens/product/edit_product.dart';
 import 'package:kantin_management/services/api_services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -17,10 +17,12 @@ class Products extends StatefulWidget{
 
 class _ProductsState extends State<Products> {
   
+  int prevLength = 0;
 
   final Color mainColor = Color.fromARGB(255, 144, 202, 249);
 
   List<ProductModel> products = [];
+  List<ProductModel> filteredProducts = [];
 
   void showToast(BuildContext context,String message){
     // Implement toast message display
@@ -130,36 +132,24 @@ class _ProductsState extends State<Products> {
 
   Future<List<ProductModel>> loadProducts() async{
     dynamic data = await ApiServices().getAllProducts();
+    setState(() {
       products = (data as List)
         .map((item) => ProductModel.fromJson(item))
         .toList();
+      filteredProducts = products;
+    });
     return products; 
   }
 
   @override
+  void initState() {
+    super.initState();
+    loadProducts();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: loadProducts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(child: Text("Error: ${snapshot.error}")),
-          );
-        }
-
-        if (!snapshot.hasData) {
-          return const Scaffold(
-            body: Center(child: Text("No data found")),
-          );
-        }
-
-        return Scaffold(
+    return Scaffold(
           body: Stack(
             children: [ 
               Positioned.fill(
@@ -262,6 +252,23 @@ class _ProductsState extends State<Products> {
                           child: TextSelectionTheme(
                             data: TextSelectionThemeData(),
                             child: TextFormField(
+                              onChanged: (value) {
+                                // Implement search functionality if needed
+                                if(value.isEmpty){
+                                  print("value is empty");
+                                  loadProducts();
+                                }else{
+                                  if(value.length < prevLength){
+                                    filteredProducts = products;
+                                  }
+                                  setState(() {
+                                    filteredProducts = filteredProducts.where((product) => product.name.toLowerCase().contains(value.toLowerCase())).toList();
+                                    prevLength = value.length;
+                                  });
+                                  print(value);
+                                }
+
+                              },
                               decoration: InputDecoration(
                                 prefixIcon: Icon(Icons.search),
                                 filled: true,
@@ -276,34 +283,17 @@ class _ProductsState extends State<Products> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 8.0),
-                        IconButton(
-                          onPressed: () {
-              
-                          },
-                          style: IconButton.styleFrom(
-                            hoverColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            backgroundColor: Colors.white,
-                            padding: EdgeInsets.all(12.0)
-                          ),
-                          icon: Icon(
-                            Icons.filter_alt_outlined
-                          ),
-                        )
                       ],
                     ),
                     SizedBox(height: 20.0),
                     Expanded(
-                      child: products.isNotEmpty ?
+                      child: filteredProducts.isNotEmpty ?
                       ListView.builder(
                         shrinkWrap: true,
                         physics: AlwaysScrollableScrollPhysics(),
-                        itemCount: products.length,
+                        itemCount: filteredProducts.length,
                         itemBuilder: (context, index) {
-                          final product = products[index];
+                          final product = filteredProducts[index];
                           return Material(
                             child: Slidable(
                               key: UniqueKey(),
@@ -372,7 +362,7 @@ class _ProductsState extends State<Products> {
                           SizedBox(height: 16.0,),
                           Center(
                             child: Text(
-                              "You don't have any product yet",
+                              "No product found",
                               style: TextStyle(
                                 color: Colors.grey
                               ),
@@ -414,7 +404,5 @@ class _ProductsState extends State<Products> {
             ]
           )
         );
-      }
-    );
   }
 }

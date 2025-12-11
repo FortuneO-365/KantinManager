@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/components/counter_input.dart';
-import 'package:kantin_management/pages/sales/sales_history.dart';
+import 'package:kantin_management/widgets/counter_input.dart';
+import 'package:kantin_management/screens/sales/sales_history.dart';
 import 'package:kantin_management/models/product_model.dart';
 import 'package:kantin_management/services/api_services.dart';
 

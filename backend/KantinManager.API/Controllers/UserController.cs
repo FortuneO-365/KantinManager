@@ -161,7 +161,10 @@ namespace KantinManager.API.Controllers
                 user.ProfileImageUrl = imageUrl;
                 await _context.SaveChangesAsync();
 
-                return Ok(new { imageUrl });
+                return Ok(new { 
+                    message = "Image Uploaded Successfully",
+                    imageUrl 
+                });
             }
             catch (Exception ex) 
             {

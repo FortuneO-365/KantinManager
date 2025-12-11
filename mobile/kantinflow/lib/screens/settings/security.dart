@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/pages/auth/forgot_password.dart';
+import 'package:kantin_management/screens/auth/forgot_password.dart';
 
 class Security extends StatelessWidget{
   const Security({super.key});

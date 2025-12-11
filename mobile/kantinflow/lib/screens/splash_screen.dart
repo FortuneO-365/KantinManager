@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kantin_management/main.dart';
 import 'package:kantin_management/models/user.dart';
-import 'package:kantin_management/pages/auth/login.dart';
+import 'package:kantin_management/screens/auth/login.dart';
 import 'package:kantin_management/services/api_services.dart';
 import 'package:kantin_management/services/auth_initializer.dart';
 import 'package:lottie/lottie.dart';
@@ -25,6 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (loggedIn) {
       try {
         User user = await ApiServices().getUser();
+        print(user.toJson());
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => HomePage(user: user)),

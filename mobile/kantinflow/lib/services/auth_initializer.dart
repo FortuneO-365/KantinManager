@@ -4,9 +4,7 @@ import 'package:kantin_management/services/token_storage.dart';
 
 class AuthInitializer {
   static Future<bool> tryAutoLogin() async{
-    print("hello");
     final refreshToken = await TokenStorage.getRefreshToken();
-    print(refreshToken);
     if(refreshToken == null || refreshToken.isEmpty){
       return false;
     }
