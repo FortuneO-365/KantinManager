@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kantin_management/screens/auth/change_password.dart';
 import 'package:kantin_management/screens/auth/forgot_password.dart';
 
 class Security extends StatelessWidget{
@@ -51,7 +52,9 @@ class Security extends StatelessWidget{
                     children: [
                       Expanded(
                         child: TextButton(
-                          onPressed: (){},
+                          onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePassword()));
+                          },
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.black87,
                             overlayColor: Colors.white

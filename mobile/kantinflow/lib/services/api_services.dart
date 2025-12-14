@@ -231,14 +231,28 @@ class ApiServices {
 
   }
 
-  Future<Response> changePassword(String oldPassword, String newPassword) {
-    return ApiClient.dio.post(
-      "/user/change-password",
-      data: {
-        "oldPassword": oldPassword,
-        "newPassword": newPassword,
-      },
-    );
+  Future<dynamic> changePassword({
+    required String oldPassword, 
+    required String newPassword
+  }) async{
+    try {
+      final response = await ApiClient.dio.post(
+        "/user/change-password",
+        data: {
+          "oldPassword": oldPassword,
+          "newPassword": newPassword,
+        },
+        options: Options(
+          validateStatus: (status) {
+            return status != null && status <= 500; 
+          },
+        ),
+      );
+
+      return response.data;
+    } catch (e) {
+      return e.toString();
+    }
   }
 
   Future<Response> deleteAccount() {

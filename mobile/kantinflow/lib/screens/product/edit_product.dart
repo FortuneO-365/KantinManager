@@ -79,7 +79,7 @@ class _EditProductState extends State<EditProduct> {
     });
   }
 
-  void validateInput(BuildContext context){
+  bool validateInput(BuildContext context){
     String productName = cProductName.text.trim();
     String priceText = cPrice.text.trim();
     String quantityText = cQuantity.text.trim();
@@ -87,63 +87,65 @@ class _EditProductState extends State<EditProduct> {
     if(productName.isEmpty){
       // Show error for product name
       showToast(context,"Product name cannot be empty");
-      return;
+      return false;
     }
 
     double? price = double.tryParse(priceText);
     if(price == null || price < 0){
       // Show error for price
       showToast(context,"Enter a valid price");
-      return;
+      return false;
     }
 
     int? quantity = int.tryParse(quantityText);
     if(quantity == null || quantity < 0){
       // Show error for quantity
       showToast(context,"Enter a valid quantity");
-      return;
+      return false;
     }
 
     // Input is valid, proceed with further actions
+    return true;
   }
 
   void editProduct(BuildContext context) async{
-    validateInput(context);
-    showLoading(context);
-    dynamic data = await ApiServices().editProduct(
-      productId: widget.product.id,
-      productName: cProductName.text.trim(), 
-      sellingPrice: double.parse(cPrice.text.trim()), 
-      quantity: int.parse(cQuantity.text.trim())
-    );
+    if(validateInput(context)){
+      showLoading(context);
+      dynamic data = await ApiServices().editProduct(
+        productId: widget.product.id,
+        productName: cProductName.text.trim(), 
+        sellingPrice: double.parse(cPrice.text.trim()), 
+        quantity: int.parse(cQuantity.text.trim())
+      );
 
-    print(data);
+      print(data);
 
-    if(data.toString() != "Product Updated Successfully"){
-      showToast(context, "Unable to edit product");
-      return;
-    }
+      if(data.toString() != "Product Updated Successfully"){
+        showToast(context, "Unable to edit product");
+        return;
+      }
 
-    if (_image == null){
+      if (_image == null){
+        hideLoading(context);
+        Navigator.pop(context, true);
+        return;
+      }
+
+      dynamic dataImage = await ApiServices().uploadProductImage(
+        productId:  widget.product.id,
+        imageFile: _image!
+      );
+
       hideLoading(context);
-      Navigator.pop(context, true);
-      return;
+
+      if (dataImage is Map && dataImage["message"] == "Image added successfully") {
+        Navigator.pop(context, true);
+        return;
+      }
+
+      showToast(context, "Unable to upload image");
+      Navigator.pop(context, true);    
     }
-
-    dynamic dataImage = await ApiServices().uploadProductImage(
-      productId:  widget.product.id,
-      imageFile: _image!
-    );
-
-    hideLoading(context);
-
-    if (dataImage is Map && dataImage["message"] == "Image added successfully") {
-      Navigator.pop(context, true);
-      return;
-    }
-
-    showToast(context, "Unable to upload image");
-    Navigator.pop(context, true);    
   }
 
   @override

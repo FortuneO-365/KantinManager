@@ -37,7 +37,6 @@ class _AddProductState extends State<AddProduct> {
     Navigator.pop(context);
   }
 
-
   void showToast(BuildContext context,String message){
     // Implement toast message display
       OverlayEntry overlayEntry = OverlayEntry(
@@ -74,7 +73,7 @@ class _AddProductState extends State<AddProduct> {
     });
   }
 
-  void validateInput(BuildContext context){
+  bool validateInput(BuildContext context){
     String productName = cProductName.text.trim();
     String priceText = cPrice.text.trim();
     String quantityText = cQuantity.text.trim();
@@ -82,62 +81,65 @@ class _AddProductState extends State<AddProduct> {
     if(productName.isEmpty){
       // Show error for product name
       showToast(context,"Product name cannot be empty");
-      return;
+      return false;
     }
 
     double? price = double.tryParse(priceText);
     if(price == null || price < 0){
       // Show error for price
       showToast(context,"Enter a valid price");
-      return;
+      return false;
     }
 
     int? quantity = int.tryParse(quantityText);
     if(quantity == null || quantity < 0){
       // Show error for quantity
       showToast(context,"Enter a valid quantity");
-      return;
+      return false;
     }
 
     // Input is valid, proceed with further actions
+    return true;
   }
 
   void addProduct(BuildContext context) async{
-    validateInput(context);
-    showLoading(context);
-    dynamic data = await ApiServices().addNewProduct(
-      productName: cProductName.text.trim(), 
-      sellingPrice: double.parse(cPrice.text.trim()), 
-      quantity: int.parse(cQuantity.text.trim())
-    );
 
-    if(data is! Map || data["message"].toString() != "Product Added Successfully"){
-      showToast(context, "Unable to add product");
-      return;
-    }
+    if(validateInput(context)){
+      showLoading(context);
+      dynamic data = await ApiServices().addNewProduct(
+        productName: cProductName.text.trim(), 
+        sellingPrice: double.parse(cPrice.text.trim()), 
+        quantity: int.parse(cQuantity.text.trim())
+      );
 
-    if (_image == null){
+      if(data is! Map || data["message"].toString() != "Product Added Successfully"){
+        showToast(context, "Unable to add product");
+        return;
+      }
+
+      if (_image == null){
+        hideLoading(context);
+        Navigator.pop(context, true);
+        return;
+      }
+
+
+      dynamic dataImage = await ApiServices().uploadProductImage(
+        productId:  int.parse(data["product"]["id"].toString()),
+        imageFile: _image!
+      );
       hideLoading(context);
-      Navigator.pop(context, true);
-      return;
+      
+
+      if (dataImage is Map && dataImage["message"] == "Image added successfully") {
+        Navigator.pop(context, true);
+        return;
+      }
+
+      showToast(context, "Unable to upload image");
+      await ApiServices().removeProduct(productId: int.parse(data["product"]["id"].toString()));
+      Navigator.pop(context, true);    
     }
-
-
-    dynamic dataImage = await ApiServices().uploadProductImage(
-      productId:  int.parse(data["product"]["id"].toString()),
-      imageFile: _image!
-    );
-    hideLoading(context);
-    
-
-    if (dataImage is Map && dataImage["message"] == "Image added successfully") {
-      Navigator.pop(context, true);
-      return;
-    }
-
-    showToast(context, "Unable to upload image");
-    await ApiServices().removeProduct(productId: int.parse(data["product"]["id"].toString()));
-    Navigator.pop(context, true);    
   }
 
   @override
