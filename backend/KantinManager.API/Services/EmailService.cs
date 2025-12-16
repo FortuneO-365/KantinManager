@@ -1,107 +1,76 @@
 ﻿using Azure.Core;
+using KantinManager.API.DTOs.BrevoDtos;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Numerics;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 public class EmailService
 {
     private readonly HttpClient _http;
     private readonly IConfiguration _config;
+    private readonly string _apiKey;
+    private readonly string _fromEmail;
+    private const string FromName = "KantinFlow";
+    private const string BrevoApiUrl = "https://api.brevo.com/v3/smtp/email";
 
     public EmailService(HttpClient http, IConfiguration config)
     {
         _http = http;
         _config = config;
+        _apiKey = _config["Brevo:Api_Key"]
+                  ?? throw new ArgumentNullException("Brevo:Api_Key is missing in configuration.");
+
+        _fromEmail = _config["Brevo:FromEmail"]
+                     ?? throw new ArgumentNullException("Brevo:FromEmail is missing in configuration.");
+    }
+
+    private async Task SendBrevoEmail(string toEmail, string subject, string htmlBody)
+    {
+        var payload = new BrevoSendEmailRequest
+        {
+            Sender = new BrevoDto { Email = _fromEmail, Name = FromName },
+            To = new List<BrevoDto> { new BrevoDto { Email = toEmail } },
+            Subject = subject,
+            HtmlContent = htmlBody
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, BrevoApiUrl);
+
+        request.Headers.Add("api-key", _apiKey);
+
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await _http.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            // This now throws an exception with the explicit Brevo error body
+            // e.g., "Brevo API error: { "code": "bad_request", "message": "Input must be a valid JSON object" }"
+            throw new Exception($"Brevo API error: {response.StatusCode}. Details: {error}");
+        }
     }
 
     public async Task SendVerificationEmail(string to, string code)
     {
-        var apiKey = _config["Brevo:Api_Key"];
-        var fromEmail = _config["Brevo:FromEmail"];
-        var fromName = "KantinFlow";
-
-        var payload = new
-        {
-            sender = new
-            {
-                email = fromEmail,
-                name = fromName
-            },
-            to = new[]
-            {
-                new { email = to }
-            },
-            subject = "Your Verification Code",
-            htmlContent = GetVerificationTemplate(code)
-        };
-
-        var request = new HttpRequestMessage(
-            HttpMethod.Post,
-            "https://api.brevo.com/v3/smtp/email"
-        );
-
-        request.Headers.Add("api-key", apiKey);
-        request.Content = new StringContent(
-            JsonSerializer.Serialize(payload),
-            Encoding.UTF8,
-            "application/json"
-        );
-
-        var response = await _http.SendAsync(request);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Brevo API error: {error}");
-        }
+        var htmlContent = GetVerificationTemplate(code);
+        await SendBrevoEmail(to, "Your Verification Code", htmlContent);
     }
 
     public async Task SendResetPasswordEmail(string to, string code)
     {
-        var apiKey = _config["Brevo:Api_Key"];
-        var fromEmail = _config["Brevo:FromEmail"];
-        var fromName = "KantinFlow";
-
-        var payload = new
-        {
-            sender = new
-            {
-                email = fromEmail,
-                name = fromName
-            },
-            to = new[]
-            {
-                new { email = to }
-            },
-            subject = "Reset Password Code",
-            htmlContent = GetResetPasswordTemplate(code)
-        };
-
-        var request = new HttpRequestMessage(
-            HttpMethod.Post,
-            "https://api.brevo.com/v3/smtp/email"
-        );
-
-        request.Headers.Add("api-key", apiKey);
-        request.Content = new StringContent(
-            JsonSerializer.Serialize(payload),
-            Encoding.UTF8,
-            "application/json"
-        );
-
-        var response = await _http.SendAsync(request);
-
-        if (!response.IsSuccessStatusCode)
-        {
-            var error = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Brevo API error: {error}");
-        }
+        var htmlContent = GetResetPasswordTemplate(code);
+        await SendBrevoEmail(to, "Reset Password Code", htmlContent);
     }
 
     private string GetVerificationTemplate(string code)
