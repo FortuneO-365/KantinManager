@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kantin_management/services/api_services.dart';
 import 'package:kantin_management/widgets/text_form_field.dart';
 
+// ignore: must_be_immutable
 class ChangePassword extends StatelessWidget {
   ChangePassword({super.key});
 
@@ -101,8 +101,6 @@ class ChangePassword extends StatelessWidget {
         newPassword:  cNewPassword.text.trim()
       );
       hideLoading(context);
-
-      print(data);
 
       if(data.toString() == "Password Changed Successfully"){
         showToast(context, "Password changed successfully");

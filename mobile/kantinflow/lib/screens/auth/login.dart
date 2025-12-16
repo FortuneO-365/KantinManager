@@ -92,7 +92,6 @@ class Login extends StatelessWidget {
       return ;
     }
     final data = await ApiServices().login(cEmail.text.trim(), cPassword.text.trim());
-    print(data.toString());
     if(data.toString() == "Success"){
       showLoading(context);
       User user = await ApiServices().getUser();

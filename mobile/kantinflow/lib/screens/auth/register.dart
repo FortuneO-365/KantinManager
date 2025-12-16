@@ -16,7 +16,7 @@ class Register extends StatelessWidget{
   final TextEditingController cPassword  = TextEditingController();
   final TextEditingController cConfirmPassword  = TextEditingController();
 
-  void ValidateUserDetails(BuildContext context){
+  bool validateUserDetails(BuildContext context){
     // Implement registration logic here
     String firstName = cFirstName.text.trim();
     String lastName = cLastName.text.trim();
@@ -26,28 +26,30 @@ class Register extends StatelessWidget{
 
     if( firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty){
       showToast(context,"Field(s) cannot be empty");
-      return;
+      return false;
     }
 
     if( password.length < 8 ){
       showToast(context,"Password must be at least 8 characters long");
-      return;
+      return false;
     }
 
     if(password.length > 30 ){
       showToast(context,"Password cannot exceed 30 characters");
-      return;
+      return false;
     }
 
     if(password != confirmPassword){
       showToast(context,"Passwords do not match");
-      return;
+      return false;
     }
 
     if(!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)){
       showToast(context,"Invalid email format");
-      return;
+      return false;
     }
+
+    return true;
   }
 
   void showToast(BuildContext context,String message){
@@ -105,23 +107,26 @@ class Register extends StatelessWidget{
 
   void registerUser(BuildContext context) async {
 
-    ValidateUserDetails(context);
-    showLoading(context);
-    final data = await ApiServices().registerUser(
-      firstName: cFirstName.text,
-      lastName: cLastName.text,
-      email: cEmail.text,
-      password: cPassword.text,
-    );
-    hideLoading(context);
-    if(data.toString() == "User Registered Successfully. Check your mail for a verification code"){
-
-      Navigator.pushReplacement(
-        context, 
-        MaterialPageRoute(builder: (context) => EmailVerification(emailAddress: cEmail.text,))
+    if(validateUserDetails(context)){
+      showLoading(context);
+      final data = await ApiServices().registerUser(
+        firstName: cFirstName.text,
+        lastName: cLastName.text,
+        email: cEmail.text,
+        password: cPassword.text,
       );
-    }
+      hideLoading(context);
+      if(data.toString() == "User Registered Successfully. Check your mail for a verification code"){
 
+        Navigator.pushReplacement(
+          context, 
+          MaterialPageRoute(builder: (context) => EmailVerification(emailAddress: cEmail.text,))
+        );
+      }else{
+        hideLoading(context);
+        showToast(context, "User Registration Failed. Try again later.");
+      }
+    }
   }
 
   @override

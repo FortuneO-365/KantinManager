@@ -3,30 +3,110 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net;
 using System.Net.Mail;
 using System.Numerics;
+using System.Text;
 using static System.Net.Mime.MediaTypeNames;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 public class EmailService
 {
+    private readonly HttpClient _http;
     private readonly IConfiguration _config;
 
-    public EmailService(IConfiguration config)
+    public EmailService(HttpClient http, IConfiguration config)
     {
+        _http = http;
         _config = config;
     }
 
     public async Task SendVerificationEmail(string to, string code)
     {
-        var host = _config["Brevo:SmtpHost"];
-        var port = int.Parse(_config["Brevo:Port"]!);
-        var username = _config["Brevo:Username"];      // Your Brevo login email
-        var password = _config["Brevo:Password"];      // Your SMTP KEY
+        var apiKey = _config["Brevo:Api_Key"];
         var fromEmail = _config["Brevo:FromEmail"];
+        var fromName = "KantinFlow";
 
-        var message = new MailMessage();
-        message.From = new MailAddress(fromEmail!);
-        message.To.Add(to);
-        message.Subject = "Your Verification Code";
-        message.Body = @$"<!DOCTYPE html>
+        var payload = new
+        {
+            sender = new
+            {
+                email = fromEmail,
+                name = fromName
+            },
+            to = new[]
+            {
+                new { email = to }
+            },
+            subject = "Your Verification Code",
+            htmlContent = GetVerificationTemplate(code)
+        };
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "https://api.brevo.com/v3/smtp/email"
+        );
+
+        request.Headers.Add("api-key", apiKey);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await _http.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Brevo API error: {error}");
+        }
+    }
+
+    public async Task SendResetPasswordEmail(string to, string code)
+    {
+        var apiKey = _config["Brevo:Api_Key"];
+        var fromEmail = _config["Brevo:FromEmail"];
+        var fromName = "KantinFlow";
+
+        var payload = new
+        {
+            sender = new
+            {
+                email = fromEmail,
+                name = fromName
+            },
+            to = new[]
+            {
+                new { email = to }
+            },
+            subject = "Reset Password Code",
+            htmlContent = GetResetPasswordTemplate(code)
+        };
+
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "https://api.brevo.com/v3/smtp/email"
+        );
+
+        request.Headers.Add("api-key", apiKey);
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json"
+        );
+
+        var response = await _http.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Brevo API error: {error}");
+        }
+    }
+
+    private string GetVerificationTemplate(string code)
+    {
+        return @$"<!DOCTYPE html>
         <html>
     <head>
         <style>
@@ -115,29 +195,11 @@ public class EmailService
       </body>
       
 </html>";
-        message.IsBodyHtml = true;
-
-        using var client = new SmtpClient(host, port);
-        client.Credentials = new NetworkCredential(username, password);
-        client.EnableSsl = true;
-        client.UseDefaultCredentials = false;   // IMPORTANT
-
-        await client.SendMailAsync(message);
     }
 
-    public async Task SendResetPasswordEmail(string to, string code)
+    private string GetResetPasswordTemplate(string code)
     {
-        var host = _config["Brevo:SmtpHost"];
-        var port = int.Parse(_config["Brevo:Port"]!);
-        var username = _config["Brevo:Username"];      // Your Brevo login email
-        var password = _config["Brevo:Password"];      // Your SMTP KEY
-        var fromEmail = _config["Brevo:FromEmail"];
-
-        var message = new MailMessage();
-        message.From = new MailAddress(fromEmail!);
-        message.To.Add(to);
-        message.Subject = "Your Reset Password Code";
-        message.Body = @$"<!DOCTYPE html>
+        return @$"<!DOCTYPE html>
         <html>
     <head>
         <style>
@@ -225,13 +287,6 @@ public class EmailService
             </table>
           </body>
     </html>";
-        message.IsBodyHtml = true;
-
-        using var client = new SmtpClient(host, port);
-        client.Credentials = new NetworkCredential(username, password);
-        client.EnableSsl = true;
-        client.UseDefaultCredentials = false;   // IMPORTANT
-
-        await client.SendMailAsync(message);
     }
 }
+

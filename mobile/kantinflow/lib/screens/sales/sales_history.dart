@@ -3,6 +3,7 @@ import 'package:kantin_management/widgets/transaction_item.dart';
 import 'package:kantin_management/models/sales_model.dart';
 import 'package:kantin_management/services/api_services.dart';
 
+// ignore: must_be_immutable
 class SalesHistory extends StatelessWidget{
   SalesHistory({super.key});
 

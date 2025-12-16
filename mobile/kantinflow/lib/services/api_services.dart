@@ -11,21 +11,31 @@ class ApiServices {
   ///***************************
  
   
-  Future<Response> registerUser({
+  Future<dynamic> registerUser({
     required String firstName,
     required String lastName,
     required String email,
     required String password,
-  }) {
-    return ApiClient.dio.post(
-      "/auth/register",
-      data: {
-        "firstName": firstName,
-        "lastName": lastName,
-        "email": email,
-        "password": password
-      },
-    );
+  }) async{
+    try {
+      final response = await ApiClient.dio.post(
+        "/auth/register",
+        data: {
+          "firstName": firstName,
+          "lastName": lastName,
+          "email": email,
+          "password": password
+        },
+        options: Options(
+          validateStatus: (status) {
+            return status != null && status <= 500; 
+          },
+        ),
+      );
+      return response.data;
+    } catch (e) {
+      return e.toString();
+    }
   }
 
   Future<dynamic> verifyUser({
@@ -47,7 +57,7 @@ class ApiServices {
       );
       return response.data;
     } catch (e) {
-      e.toString();
+      return e.toString();
     }
   }
 

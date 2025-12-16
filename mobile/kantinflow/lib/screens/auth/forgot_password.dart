@@ -338,8 +338,6 @@ class ResetForgottenPassword extends StatelessWidget{
       code: cCode.text,
       password: cNewPassword.text,
     );
-
-    print(data.toString());
     hideLoading(context);
 
     if(data.toString() != "Password Changed Successfully"){

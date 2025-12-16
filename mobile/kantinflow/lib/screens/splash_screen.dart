@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kantin_management/main.dart';
-import 'package:kantin_management/models/user.dart';
-import 'package:kantin_management/screens/auth/login.dart';
-import 'package:kantin_management/services/api_services.dart';
-import 'package:kantin_management/services/auth_initializer.dart';
+import 'package:kantin_management/screens/waiting_screen.dart';
 import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,38 +13,15 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
 
-  Future<void> initialize() async {
-    bool loggedIn = await AuthInitializer.tryAutoLogin();
-
-    if (!mounted) return;
-
-    if (loggedIn) {
-      try {
-        User user = await ApiServices().getUser();
-        print(user.toJson());
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => HomePage(user: user)),
-        );
-        
-      } catch (e) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => Login()),
-        );  
-      }
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => Login()),
-      );
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 1), initialize);
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => WaitingScreen()),
+      );
+    });
   }
 
   @override
@@ -56,9 +29,14 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: Lottie.asset(
-          'assets/animations/soft_pulse_animation.json',
-          width: 200,
+        child: Hero(
+          tag: 'splash_logo',
+          child: SizedBox(
+            width: 200,
+            child: Lottie.asset(
+              'assets/animations/soft_pulse_animation.json',
+            ),
+          ),
         ),
       ),
     );

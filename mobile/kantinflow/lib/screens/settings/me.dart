@@ -7,6 +7,7 @@ import 'package:kantin_management/screens/settings/profile.dart';
 import 'package:kantin_management/screens/settings/security.dart';
 import 'package:kantin_management/services/api_services.dart';
 
+// ignore: must_be_immutable
 class Settings extends StatefulWidget{
 
   User user;
@@ -60,7 +61,6 @@ class _SettingsState extends State<Settings> {
 
   void signOut(BuildContext context) async{
     final data = await ApiServices().logout();
-    print(data.toString());
 
     if(data.toString() == "Logged out successfully"){
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));

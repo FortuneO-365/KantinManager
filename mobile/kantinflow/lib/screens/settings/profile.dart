@@ -3,6 +3,7 @@ import 'package:kantin_management/models/user.dart';
 import 'package:kantin_management/screens/settings/edit_profile_image.dart';
 import 'package:kantin_management/services/api_services.dart';
 
+// ignore: must_be_immutable
 class Profile extends StatefulWidget{
 
   User user;
@@ -21,7 +22,8 @@ class _ProfileState extends State<Profile> {
   final Color mainColor = Color.fromARGB(255, 144, 202, 249);
   final TextEditingController _controller = TextEditingController();
 
-  // XFile? _image;
+  String _selectedGender = "Male";
+
 
   String hideEmail(String email){
     String firstThreeLetters = email.substring(0,3);
@@ -239,15 +241,17 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  void _showGenderPicker(BuildContext context, String title, TextEditingController controller) {
+  void _showGenderPicker(BuildContext context) {
+    _selectedGender = widget.user.gender ?? "Male"; // default
+
     showModalBottomSheet(
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
       context: context,
       builder: (context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
           child: SafeArea(
             child: Wrap(
               children: [
@@ -256,86 +260,72 @@ class _ProfileState extends State<Profile> {
                   child: Center(
                     child: Text(
                       "Edit Gender",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontWeight: FontWeight.w600,
-                        fontSize: 16.0
+                        fontSize: 16,
                       ),
                     ),
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Gender",
-                      style: TextStyle(
-                        fontSize: 14.0
-                      ),
-                    ),
-                    SizedBox(height: 8.0),
-                    DropdownButtonFormField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300
-                          )
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade300
-                          )
-                        ),
-                      ),
-                      items: ["Male", "Female", "Others",]
-                          .map((item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(item),
-                              )) 
-                          .toList(),
-                      initialValue: "Male",
-                      onChanged: (item){
-                        if(item != null){
-                          setState(() {
-                            controller.text = item;
-                          });
-                        }else{
-                          setState(() {
-                            controller.text = 'Male';
-                          });
-                          print(controller.text);
-                        }
-                      }
-                    ),
-                  ],
-                ),
                 Container(
                   margin: EdgeInsets.all(8.0),
                 ),
+
+                DropdownButtonFormField<String>(
+                  initialValue: _selectedGender,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300
+                      )
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey.shade300
+                      )
+                    ),
+                  ),
+                  items: const ["Male", "Female", "Others"]
+                      .map(
+                        (gender) => DropdownMenuItem(
+                          value: gender,
+                          child: Text(gender),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      _selectedGender = value;
+                    }
+                  },
+                ),
+
+                Container(
+                  margin: EdgeInsets.all(8.0),
+                ),
+
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: (){
-                          Navigator.pop(context);
-                        }, 
+                        onPressed: () => Navigator.pop(context),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.blue.shade300,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadiusGeometry.circular(8.0)
                           )
                         ),
-                        child: Text("Cancel")
+                        child: const Text("Cancel"),
                       ),
                     ),
-                    SizedBox(width: 8.0,),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: (){
-                          editUser(title, controller.text.trim());
-                        }, 
+                        onPressed: () {
+                          editUser("Gender", _selectedGender);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade300,
                           foregroundColor: Colors.white,
@@ -343,11 +333,11 @@ class _ProfileState extends State<Profile> {
                             borderRadius: BorderRadiusGeometry.circular(8.0)
                           )
                         ),
-                        child: Text("Edit")
+                        child: const Text("Edit"),
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -589,7 +579,7 @@ class _ProfileState extends State<Profile> {
                           ?
                             (){}
                           :
-                            _showGenderPicker(context, "Gender", _controller);
+                            _showGenderPicker(context);
                         }, 
                         style: TextButton.styleFrom(
                           overlayColor: Colors.white,

@@ -255,7 +255,6 @@ class _ProductsState extends State<Products> {
                               onChanged: (value) {
                                 // Implement search functionality if needed
                                 if(value.isEmpty){
-                                  print("value is empty");
                                   loadProducts();
                                 }else{
                                   if(value.length < prevLength){
@@ -265,7 +264,6 @@ class _ProductsState extends State<Products> {
                                     filteredProducts = filteredProducts.where((product) => product.name.toLowerCase().contains(value.toLowerCase())).toList();
                                     prevLength = value.length;
                                   });
-                                  print(value);
                                 }
 
                               },

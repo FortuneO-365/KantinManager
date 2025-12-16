@@ -95,8 +95,6 @@ class SalesState extends State<Sales> {
       return; 
     }
 
-    print(quantity);
-    print(selectedProductId);
   } 
 
   void recordSale() async{
@@ -107,7 +105,6 @@ class SalesState extends State<Sales> {
       quantitySold: quantity
     );
 
-    print(data);
 
     if(data["message"] == "Sale recorded successfully"){
       showToast(context, "Sale recorded successfully");

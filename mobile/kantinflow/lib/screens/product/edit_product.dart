@@ -118,7 +118,6 @@ class _EditProductState extends State<EditProduct> {
         quantity: int.parse(cQuantity.text.trim())
       );
 
-      print(data);
 
       if(data.toString() != "Product Updated Successfully"){
         showToast(context, "Unable to edit product");
