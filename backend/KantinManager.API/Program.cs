@@ -29,6 +29,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddHttpClient<EmailService>();
 
 builder.Services.AddSingleton<CloudinaryService>();
 
