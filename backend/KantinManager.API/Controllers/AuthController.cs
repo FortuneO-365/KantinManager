@@ -44,7 +44,8 @@ namespace KantinManager.API.Controllers
             try
             {
                 var userEmail = dto.Email;
-                await _emailService.SendVerificationEmail(userEmail, code); // Use the instance of EmailService
+                var userName = dto.FirstName;
+                await _emailService.SendVerificationEmail(userEmail, userName, code); // Use the instance of EmailService
 
                 var user = new User
                 {
@@ -155,7 +156,7 @@ namespace KantinManager.API.Controllers
             var expiration = DateTime.UtcNow.AddHours(1);
             try
             {
-                await _emailService.SendVerificationEmail(user.Email, code);
+                await _emailService.SendVerificationEmail(user.Email, user.FirstName, code);
                 user.VerificationCode = code;
                 user.VerificationCodeExpiresAt = expiration;
                 await _context.SaveChangesAsync();
@@ -189,7 +190,7 @@ namespace KantinManager.API.Controllers
             try
             {
                 // Send email
-                await _emailService.SendResetPasswordEmail(user.Email, code);
+                await _emailService.SendResetPasswordEmail(user.Email, user.FirstName, code);
 
                 // Save to DB
                 user.VerificationCode = code;
