@@ -126,6 +126,7 @@ class _ProductsState extends State<Products> {
     if (data.toString() == "Product deleted successfully"){
       showToast(context, "Product deleted successfully");
       Navigator.pop(context);
+      loadProducts();
     }
     
   }

@@ -73,8 +73,9 @@ class _EditProfileImageState extends State<EditProfileImage> {
       showLoading(context);
       final data = await ApiServices().uploadProfileImage(imageFile: _image!);
       hideLoading(context);
+      print(data);
 
-      if(data["message"].toString() == "Image Uploaded Successfully"){
+      if(data["message"] == "Image Uploaded Successfully"){
         Navigator.pop(context, true);
       } else {
         showToast(context, "Failed to update profile image");

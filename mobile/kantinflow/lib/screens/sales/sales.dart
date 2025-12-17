@@ -108,6 +108,10 @@ class SalesState extends State<Sales> {
 
     if(data["message"] == "Sale recorded successfully"){
       showToast(context, "Sale recorded successfully");
+      setState(() {
+        quantity = 1;
+      });
+      loadProducts();
     }else{
       showToast(context, "Failed to record sale");
     }
@@ -247,6 +251,7 @@ class SalesState extends State<Sales> {
                                     onChanged: (product) {
                                       setState(() {
                                         selectedProductId = product!;
+                                        quantity = 1;
                                       });
                                       selectProduct(product!);
                                     }
