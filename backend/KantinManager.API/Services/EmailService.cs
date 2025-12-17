@@ -62,12 +62,18 @@ public class EmailService
         // 3. Send the request
         var response = await _http.SendAsync(request);
 
+        Console.WriteLine(response.StatusCode);
         // 4. Handle non-success responses
         if (!response.IsSuccessStatusCode)
         {
             var error = await response.Content.ReadAsStringAsync();
             // This now throws an exception with the explicit Brevo error body
             // e.g., "Brevo API error: { "code": "bad_request", "message": "Input must be a valid JSON object" }"
+            Console.WriteLine($"Brevo API Key Used: {_apiKey}"); // Temporarily log the key being used
+            Console.WriteLine($"Brevo From Email Used: {_fromEmail}"); // Temporarily log the email
+            Console.WriteLine($"Brevo API Raw Response: {error}");
+
+            
             throw new Exception($"Brevo API error: {response.StatusCode}. Details: {error}");
         }
     }
