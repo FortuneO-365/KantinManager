@@ -31,6 +31,16 @@ namespace KantinManager.API.Services
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
 
+            if (uploadResult.Error != null)
+            {
+                throw new Exception($"Cloudinary Error: {uploadResult.Error.Message}");
+            }
+
+            if (uploadResult.SecureUrl == null)
+            {
+                throw new Exception("Cloudinary upload failed: SecureUrl is null.");
+            }
+
             return uploadResult.SecureUrl.AbsoluteUri;
         }
 
@@ -45,6 +55,16 @@ namespace KantinManager.API.Services
             };
 
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.Error != null)
+            {
+                throw new Exception($"Cloudinary Error: {uploadResult.Error.Message}");
+            }
+
+            if (uploadResult.SecureUrl == null)
+            {
+                throw new Exception("Cloudinary upload failed: SecureUrl is null.");
+            }
 
             return uploadResult.SecureUrl.AbsoluteUri;
         }
