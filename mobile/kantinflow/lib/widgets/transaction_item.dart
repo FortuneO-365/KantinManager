@@ -100,7 +100,7 @@ class _TransactionItemState extends State<TransactionItem> {
                     children: [
                       _columnItem("Transation ID", widget.sale.id.toString()),
                       SizedBox(width: 60.0,),
-                      _columnItem("Product ID", "5"),
+                      _columnItem("Product ID", widget.sale.productId.toString()),
                     ],
                   ),
                   

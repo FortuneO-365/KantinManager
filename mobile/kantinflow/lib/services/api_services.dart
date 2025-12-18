@@ -234,7 +234,6 @@ class ApiServices {
           },
         )
       );
-      print(response.statusCode);
       return response.data;
     }catch(e){
       return '$e from uploadProfileImage';

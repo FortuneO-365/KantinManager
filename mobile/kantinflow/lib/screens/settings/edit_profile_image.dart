@@ -73,7 +73,6 @@ class _EditProfileImageState extends State<EditProfileImage> {
       showLoading(context);
       final data = await ApiServices().uploadProfileImage(imageFile: _image!);
       hideLoading(context);
-      print(data);
 
       if(data["message"] == "Image Uploaded Successfully"){
         Navigator.pop(context, true);

@@ -132,23 +132,10 @@ class _SettingsState extends State<Settings> {
                           children: [
                             widget.user.profileImageUrl != null
                             ?
-                            Container(
-                              height: 60,
-                              width: 60,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    widget.user.profileImageUrl!,
-                                  ),
-                                  fit: BoxFit.cover,
-                                )
-                              ),
-                              child: Image.network(
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundImage: NetworkImage(
                                 widget.user.profileImageUrl!,
-                                fit: BoxFit.cover,
-                                height: double.infinity,
-                                width: double.infinity,
                               ),
                             )
                             :

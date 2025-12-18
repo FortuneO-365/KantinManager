@@ -89,23 +89,10 @@ class _DashboardState extends State<Dashboard> {
                           children: [
                             user.profileImageUrl != null
                         ?
-                        Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              image: NetworkImage(
-                                user.profileImageUrl!,
-                              ),
-                              fit: BoxFit.cover,
-                            )
-                          ),
-                          child: Image.network(
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundImage: NetworkImage(
                             user.profileImageUrl!,
-                            fit: BoxFit.cover,
-                            height: double.infinity,
-                            width: double.infinity,
                           ),
                         )
                         :

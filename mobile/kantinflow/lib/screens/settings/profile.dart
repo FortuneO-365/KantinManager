@@ -398,23 +398,10 @@ class _ProfileState extends State<Profile> {
                           children: [
                             widget.user.profileImageUrl != null
                             ?
-                            Container(
-                              height: 130,
-                              width: 130,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    widget.user.profileImageUrl!,
-                                  ),
-                                  fit: BoxFit.cover,
-                                )
-                              ),
-                              child: Image.network(
+                            CircleAvatar(
+                              radius: 60,
+                              backgroundImage: NetworkImage(
                                 widget.user.profileImageUrl!,
-                                fit: BoxFit.cover,
-                                height: double.infinity,
-                                width: double.infinity,
                               ),
                             )
                             :
